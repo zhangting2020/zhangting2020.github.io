@@ -66,7 +66,7 @@
 
 
 
-  <meta name="keywords" content="Hexo,计算机视觉,目标检测" />
+  <meta name="keywords" content="object detection,CNN,face detection," />
 
 
 
@@ -77,13 +77,25 @@
 
 
 
-<meta property="og:type" content="website">
-<meta property="og:title" content="Tina&#39;s Blog">
-<meta property="og:url" content="http://yoursite.com/archives/2018/index.html">
+<meta name="description" content="提出一种深度级联的多任务框架，利用检测和对齐的固有相关性去增强它们的性能。实际中，利用有三阶段精细设计的深度卷机网络的级联结构，由粗到精地检测和对齐人脸。">
+<meta name="keywords" content="object detection,CNN,face detection">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Joint Face Detection and Alignment using Multi-task Cascaded Convolutional Networks">
+<meta property="og:url" content="http://yoursite.com/2018/04/25/mtcnn/index.html">
 <meta property="og:site_name" content="Tina&#39;s Blog">
+<meta property="og:description" content="提出一种深度级联的多任务框架，利用检测和对齐的固有相关性去增强它们的性能。实际中，利用有三阶段精细设计的深度卷机网络的级联结构，由粗到精地检测和对齐人脸。">
 <meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://yoursite.com/images/mtcnn/pipeline.png">
+<meta property="og:image" content="http://yoursite.com/images/mtcnn/Architectures.png">
+<meta property="og:image" content="http://yoursite.com/images/mtcnn/Eq1.png">
+<meta property="og:image" content="http://yoursite.com/images/mtcnn/Eq2.png">
+<meta property="og:image" content="http://yoursite.com/images/mtcnn/Eq3.png">
+<meta property="og:image" content="http://yoursite.com/images/mtcnn/Eq4.png">
+<meta property="og:updated_time" content="2018-05-06T13:44:16.050Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Tina&#39;s Blog">
+<meta name="twitter:title" content="Joint Face Detection and Alignment using Multi-task Cascaded Convolutional Networks">
+<meta name="twitter:description" content="提出一种深度级联的多任务框架，利用检测和对齐的固有相关性去增强它们的性能。实际中，利用有三阶段精细设计的深度卷机网络的级联结构，由粗到精地检测和对齐人脸。">
+<meta name="twitter:image" content="http://yoursite.com/images/mtcnn/pipeline.png">
 
 
 
@@ -113,13 +125,13 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/archives/2018/"/>
+  <link rel="canonical" href="http://yoursite.com/2018/04/25/mtcnn/"/>
 
 
 
 
 
-  <title>归档 | Tina's Blog</title>
+  <title>Joint Face Detection and Alignment using Multi-task Cascaded Convolutional Networks | Tina's Blog</title>
   
 
 
@@ -138,7 +150,7 @@
     
   
 
-  <div class="container sidebar-position-left page-archive">
+  <div class="container sidebar-position-left page-post-detail">
     <div class="headband"></div>
 
     <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
@@ -276,148 +288,254 @@
           <div id="content" class="content">
             
 
-  
-  
-  
-  <div class="post-block archive">
-    <div id="posts" class="posts-collapse">
-      <span class="archive-move-on"></span>
+  <div id="posts" class="posts-expand">
+    
 
-      <span class="archive-page-counter">
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/04/25/mtcnn/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Ting Zhang">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/cat.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Tina's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
         
         
+          <h1 class="post-title" itemprop="name headline">Joint Face Detection and Alignment using Multi-task Cascaded Convolutional Networks</h1>
         
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-04-25T12:56:33+08:00">
+                2018-04-25
+              </time>
+            
+
+            
+
+            
+          </span>
+
           
-        
-        嗯..! 目前共计 3 篇日志。 继续努力。
-      </span>
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/CNN/" itemprop="url" rel="index">
+                    <span itemprop="name">CNN</span>
+                  </a>
+                </span>
 
-      
-
-        
-        
-        
-
-        
+                
+                
+              
+            </span>
           
-          <div class="collection-title">
-            <h1 class="archive-year" id="archive-year-2018">2018</h1>
-          </div>
-        
-        
 
-        
+          
+            
+          
 
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
+          
+          
 
-      <h2 class="post-title">
-        
-            <a class="post-title-link" href="/2018/05/06/Mask-R-CNN/" itemprop="url">
+          
+
+          
+            <div class="post-wordcount">
               
-                <span itemprop="name">Mask-R-CNN</span>
+                
+                  <span class="post-meta-divider">|</span>
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  1,376
+                </span>
               
-            </a>
-        
-      </h2>
 
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2018-05-06T21:47:07+08:00"
-              content="2018-05-06" >
-          05-06
-        </time>
-      </div>
+              
 
-    </header>
-  </article>
+              
+            </div>
+          
 
+          
 
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
 
       
-
-        
-        
-        
-
-        
-        
-
-        
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h2 class="post-title">
-        
-            <a class="post-title-link" href="/2018/05/06/FPN/" itemprop="url">
-              
-                <span itemprop="name">Feature Pyramid Networks for Object Detection</span>
-              
-            </a>
-        
-      </h2>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2018-05-06T21:00:21+08:00"
-              content="2018-05-06" >
-          05-06
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
-
       
 
-        
-        
-        
+      
+        <blockquote>
+<p>提出一种深度级联的多任务框架，利用检测和对齐的固有相关性去增强它们的性能。实际中，利用有三阶段精细设计的深度卷机网络的级联结构，由粗到精地检测和对齐人脸。</p>
+</blockquote>
+<a id="more"></a>
+<h1 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h1><p>人脸识别中视觉的变化，比如遮挡，姿态变化和极端的光照条件，会给人脸检测和对齐带来巨大挑战。<br><code>AdaBoost</code>和<code>Haar-Like</code>特征训练的级联分类器虽然可以达到比较高的效率，但是大量研究表明这类检测器在人脸有着较大的视觉变化时，检测精度会大大降低。<code>DPM（deformable part models）</code>用于人脸检测也可以达到非常好的性能，然而计算代价太大，并且在训练时可能要求大量的标注。</p>
+<p>人脸对齐领域的方法可以大致划分为两类：基于回归的方法和模板匹配方法。过去大部分的人脸检测和对齐方法都忽视了这两种任务之间的固有联系。</p>
+<p>另一方面，挖掘难样本对于增强检测器的性能是至关重要的。传统的方法都是离线模式去挖掘，对于人脸检测任务来说，需要一种在线的难阳本挖掘方法，这样可以自动适应当前的训练状态。</p>
+<p>本文中，通过多任务学习使用统一的级联<code>CNNs</code>集成这两种任务。提出的<code>CNNs</code>包含三个阶段：第一阶段，使用浅层的<code>CNN(fast Proposal Network (P-Net))</code>生成候选窗口；第二阶段，通过更加复杂的<code>CNN(Refinement Network (R-Net))</code>去精炼窗口，拒绝掉大量的非人脸的窗口；第三阶段，使用更加强大的<code>CNN(Output Network (O-Net))</code>去再次精修结果并输出<code>5</code>个<code>landmark</code>位置。</p>
+<center><img src="/images/mtcnn/pipeline.png" width="50%"></center>
 
-        
-        
+<p>贡献：</p>
+<ul>
+<li>提出一种级联的<code>CNNs</code>框架做人脸检测和对齐，设计了一种轻量的<code>CNNs</code>结构用于实时性能。</li>
+<li>提出一种在线难样本挖掘（<code>online hard sample mining</code>）方法去提高性能。</li>
+</ul>
+<h1 id="Approach"><a href="#Approach" class="headerlink" title="Approach"></a>Approach</h1><h2 id="Overall-Framework"><a href="#Overall-Framework" class="headerlink" title="Overall Framework"></a>Overall Framework</h2><p>首先将给定图像缩放到不同的尺度建立图像金字塔，这将是后面三阶段级联框架的输入。</p>
+<ul>
+<li><p>第一阶段：采用全卷积神经网络，即<code>P-Net</code>，去获得候选窗体和<code>bounding box</code>回归向量。同时，候选窗体根据估计的<code>bounding box</code>向量进行校准。然后，利用<code>NMS</code>方法合并高度重叠的候选框。</p>
+</li>
+<li><p>第二阶段：所有的候选框被输入<code>R-Net</code>，进一步拒绝掉大量的错误候选框，同样使用<code>bounding box</code>回归校正候选框，并实施<code>NMS</code>。</p>
+</li>
+<li><p>第三阶段：和第二阶段相似，但是目的是利用更多的监督去判断人脸区域，并输出<code>5</code>个<code>landmark</code>位置。</p>
+</li>
+</ul>
+<h2 id="CNN-Architectures"><a href="#CNN-Architectures" class="headerlink" title="CNN Architectures"></a>CNN Architectures</h2><p>多个<code>CNN</code>被用于人脸检测，但其性能可能受到以下情况的限制：</p>
+<ul>
+<li>卷积层中的卷积核缺乏多样性，限制他们的识别能力；</li>
+<li>对比多类识别检测和分类任务，人脸检测是一个二分类问题，因此每一层需要的卷积核较少。所以本文减少卷积核数量，并将<code>5*5</code>的卷积核大小改为<code>3*3</code>的，以此在增加深度来提高性能的同时减少计算。<center><img src="/images/mtcnn/Architectures.png" width="80%"></center>  
 
-        
+</li>
+</ul>
+<h2 id="Training"><a href="#Training" class="headerlink" title="Training"></a>Training</h2><p> 本算法从三个方面对<code>CNN</code>检测器进行训练：人脸分类、<code>bounding box</code>回归、<code>landmark</code>定位（关键点定位）。</p>
+<p> <strong>人脸分类：</strong> 二分类问题，使用交叉熵损失函数：</p>
+ <center><img src="/images/mtcnn/Eq1.png" width="50%"></center>
 
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
+<p> <strong><code>bounding box</code> 回归：</strong> 回归问题，使用欧氏距离计算的损失函数：</p>
+<center><img src="/images/mtcnn/Eq2.png" width="28%"></center>
 
-      <h2 class="post-title">
-        
-            <a class="post-title-link" href="/2018/04/25/mtcnn/" itemprop="url">
-              
-                <span itemprop="name">Joint Face Detection and Alignment using Multi-task Cascaded Convolutional Networks</span>
-              
-            </a>
-        
-      </h2>
+<p> <strong><code>landmark</code> 定位：</strong> 回归问题，使用欧氏距离计算损失函数：</p>
+<center><img src="/images/mtcnn/Eq3.png" width="50%"></center>
 
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2018-04-25T12:56:33+08:00"
-              content="2018-04-25" >
-          04-25
-        </time>
-      </div>
+<p>在每个<code>CNN</code>中实现的是不同的任务，所以在学习过程中有几种类型的训练图像：人脸，非人脸，部分对齐的人脸。在这种场合下，上面的式子不能使用，比如，对于背景区域的样本，只需要计算检测损失，其他两种损失设置为<code>0</code>，所以使用一些系数，<strong>总体的学习目标</strong>表示为：</p>
+<center><img src="/images/mtcnn/Eq4.png" width="50%"></center>
 
-    </header>
-  </article>
-
-
+<p><strong>Online Hard sample mining：</strong> 每一个<code>mini-batch</code>中，对从所有的样本前向运算得到的损失排序，选择前<code>70%</code>作为难样本。在反向传播中，只计算来自于这些难样本的梯度。这意味着在训练中忽视掉那些对增强检测器性能帮助甚小的简单样本。</p>
+<h1 id="Experiments"><a href="#Experiments" class="headerlink" title="Experiments"></a>Experiments</h1><p>在训练中有四种数据：</p>
+<ol>
+<li>负样本：与任何<code>ground truth faces</code>的<code>IoU</code>低于<code>0.3</code>的。</li>
+<li>正样本：与一个<code>ground truth face</code>的<code>IoU</code>高于<code>0.65</code>的。</li>
+<li><code>Part faces</code>：与一个<code>ground truth face</code>的<code>IoU</code>在<code>0.4~0.65</code>之间的。</li>
+<li><code>Landmark faces</code>：标定了<code>5</code>个<code>landmark</code>的。<br>负样本和正样本用于人脸分类，正样本和<code>part faces</code>用于<code>bounding box</code>回归，<code>landmark faces</code>用于<code>landmark</code>定位。上面的样本比例：<code>3：1：1：2</code>。</li>
+</ol>
+<p>数据的收集方法如下：</p>
+<ul>
+<li><p><code>P-Net</code>：随机地从<code>WIDER FACE</code>数据集中裁切一些图像块，收集正样本，负样本，<code>part</code>人脸。从<code>CelebA</code>数据库裁切人脸作为<code>landmark</code>人脸。</p>
+</li>
+<li><p><code>R-Net</code>：使用框架的第一阶段在<code>WIDER FACE</code>中检测人脸，收集正样本，负样本和<code>part</code>人脸，同时从<code>CelebA</code>中检测<code>landmark</code>人脸。</p>
+</li>
+<li><p><code>O-Net</code>：与<code>R-Net</code>相似的方法收集数据。但是是使用前两个阶段去检测人脸和收集数据。</p>
+</li>
+</ul>
 
       
-
     </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/object-detection/" rel="tag"># object detection</a>
+          
+            <a href="/tags/CNN/" rel="tag"># CNN</a>
+          
+            <a href="/tags/face-detection/" rel="tag"># face detection</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/05/06/FPN/" rel="prev" title="Feature Pyramid Networks for Object Detection">
+                Feature Pyramid Networks for Object Detection <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
   </div>
   
   
   
+  </article>
 
-  
 
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
 
 
           </div>
@@ -425,6 +543,10 @@
 
 
           
+
+  
+
+
 
         </div>
         
@@ -445,8 +567,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+      <section class="site-overview-wrap sidebar-panel">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
@@ -526,6 +657,22 @@
         </div>
       </section>
 
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Introduction"><span class="nav-number">1.</span> <span class="nav-text">Introduction</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Approach"><span class="nav-number">2.</span> <span class="nav-text">Approach</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Overall-Framework"><span class="nav-number">2.1.</span> <span class="nav-text">Overall Framework</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#CNN-Architectures"><span class="nav-number">2.2.</span> <span class="nav-text">CNN Architectures</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Training"><span class="nav-number">2.3.</span> <span class="nav-text">Training</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Experiments"><span class="nav-number">3.</span> <span class="nav-text">Experiments</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
       
 
       
@@ -662,6 +809,10 @@
 
 
   
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
 
   
 
