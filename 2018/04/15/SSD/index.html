@@ -1,0 +1,1199 @@
+<!DOCTYPE html>
+
+
+
+
+<html class="theme-next gemini" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="object detection," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="这篇文章发表在ECCV2016上，在既保证速度，又要保证精度的情况下，提出了SSD。使用single deep neural network，便于训练与优化，同时提高检测速度。SSD将bounding box的输出空间离散化为一组默认框，这些默认框在feature map每个位置有不同的高宽比和尺度。在预测时，网络对每一个默认框中存在的目标生成类别分数，并且调整边界框以更好地匹配目标形状。除此之">
+<meta name="keywords" content="object detection">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SSD:Single Shot MultiBox Detector">
+<meta property="og:url" content="http://yoursite.com/2018/04/15/SSD/index.html">
+<meta property="og:site_name" content="Tina&#39;s Blog">
+<meta property="og:description" content="这篇文章发表在ECCV2016上，在既保证速度，又要保证精度的情况下，提出了SSD。使用single deep neural network，便于训练与优化，同时提高检测速度。SSD将bounding box的输出空间离散化为一组默认框，这些默认框在feature map每个位置有不同的高宽比和尺度。在预测时，网络对每一个默认框中存在的目标生成类别分数，并且调整边界框以更好地匹配目标形状。除此之">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://yoursite.com/images/SSD/Framework.png">
+<meta property="og:image" content="http://yoursite.com/images/SSD/SSDandYOLO.png">
+<meta property="og:image" content="http://yoursite.com/images/SSD/result.png">
+<meta property="og:updated_time" content="2018-05-20T09:19:44.082Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="SSD:Single Shot MultiBox Detector">
+<meta name="twitter:description" content="这篇文章发表在ECCV2016上，在既保证速度，又要保证精度的情况下，提出了SSD。使用single deep neural network，便于训练与优化，同时提高检测速度。SSD将bounding box的输出空间离散化为一组默认框，这些默认框在feature map每个位置有不同的高宽比和尺度。在预测时，网络对每一个默认框中存在的目标生成类别分数，并且调整边界框以更好地匹配目标形状。除此之">
+<meta name="twitter:image" content="http://yoursite.com/images/SSD/Framework.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":true,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/04/15/SSD/"/>
+
+
+
+
+
+  <title>SSD:Single Shot MultiBox Detector | Tina's Blog</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Tina's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/04/15/SSD/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Ting Zhang">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/cat.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Tina's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">SSD:Single Shot MultiBox Detector</h1>
+        
+
+        <div class="post-meta">
+          
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-04-15T10:12:05+08:00">
+                2018-04-15
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/CNN/" itemprop="url" rel="index">
+                    <span itemprop="name">CNN</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                  <span class="post-meta-divider">|</span>
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  2,398
+                </span>
+              
+
+              
+
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <blockquote>
+<p>这篇文章发表在<code>ECCV2016</code>上，在既保证速度，又要保证精度的情况下，提出了<code>SSD</code>。使用<code>single deep neural network</code>，便于训练与优化，同时提高检测速度。<code>SSD</code>将<code>bounding box</code>的输出空间离散化为一组默认框，这些默认框在<code>feature map</code>每个位置有不同的高宽比和尺度。在预测时，网络对每一个默认框中存在的目标生成类别分数，并且调整边界框以更好地匹配目标形状。除此之外，网络对不同分辨率的<code>feature map</code>进行组合，以处理各种尺寸的目标。<br><a id="more"></a></p>
+</blockquote>
+<h1 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h1><p>目前流行的<code>state-of-art</code>的检测系统大致都是如下步骤，先生成一些假设的<code>bounding boxes</code>，然后在这些<code>bounding boxes</code>中提取特征，之后再经过一个分类器，来判断里面是不是物体，是什么物体。这些方法计算时间长，即使有的速度提升了，却是以牺牲检测精度来换取时间的。</p>
+<p>这篇文章提出了第一个在<code>bounding box</code>预测上不需要重新采样像素和特征的基于深度网络的目标检测器。这使得速度和精度都有了改善。<strong>速度上的根本改进是因为消除了<code>bounding box proposal</code>和后续的像素或特征重采样阶段</strong>。</p>
+<p>改进包括：使用小的卷积核去预测目标类别和边界框位置的偏移，使用单独的预测器（<code>filter</code>）解决不同高宽比的检测，并且将这些<code>filter</code>应用到网络后期的<code>feature map</code>上去实现多尺度的检测。</p>
+<p><strong><code>SSD</code>的贡献</strong>：</p>
+<ul>
+<li>比<code>YOLO</code>更快，更准确；和<code>Faster R-CNN</code>一样准确。</li>
+<li>核心是使用小卷积核来预测特征图上固定的一组默认边界框的类别分数和位置偏移。</li>
+<li>为了实现高检测精度，从不同尺度的特征图产生不同尺度的预测，并且得到不同高宽比的预测。</li>
+<li>这些设计实现了简单的端到端训练和高精度的检测，即使输入相对低分辨率图像，也能在速度和精度之间取得更好的权衡。</li>
+</ul>
+<h1 id="The-Single-Shot-Detector-SSD"><a href="#The-Single-Shot-Detector-SSD" class="headerlink" title="The Single Shot Detector (SSD)"></a>The Single Shot Detector (SSD)</h1><p><strong>以卷积形式，在不同尺度（例如<code>8×8</code>和<code>4×4</code>）的特征图中的每个位置上评估一组不同高宽比的默认框(<code>default box</code>)。 对于每个默认框，预测位置偏移和目标类别分数（<code>c1，c2，...，cp</code>）</strong>。</p>
+<p>在训练时，首先将这些默认框匹配到真实标签框。例如，两个蓝色虚线默认框匹配到猫，一个红色虚线框匹配到狗，这些框为正，其余为负。模型损失是位置损失（例如<code>Smooth L1</code>）和置信度损失之间的加权和。</p>
+<ul>
+<li><code>feature map</code>尺寸例如是<code>8×8</code>或者<code>4×4</code>的</li>
+<li><code>default box</code>就是每一个位置上，一系列固定大小的<code>box</code>，即图中虚线所形成的一系列 <code>boxes</code>。同一个<code>feature map</code>上<code>default box</code>的<code>aspect ratio</code>不同，不同的<code>feature map</code>上<code>default box</code>有着不同的<code>scale</code>。</li>
+</ul>
+<center><img src="/images/SSD/Framework.png" width="80%"></center>
+
+<h2 id="Model"><a href="#Model" class="headerlink" title="Model"></a>Model</h2><p><strong><code>SSD</code>产生一组检测框和框中目标类别分数，接着使用非极大化抑制产生最终检测</strong>。本文在基础网络后添加辅助结构，产生了具有以下主要特征的检测：</p>
+<p><strong>Multi-scale feature maps for detection</strong>：将卷积特征层添加到截断的基础网络的末尾。这些层尺寸逐渐减小，并且允许多个尺度的预测。检测的卷积模型对于每个特征层是不同的。</p>
+<p><strong>Convolutional predictors for detection</strong>：每个添加的特征层（或基础网络结构中的现有特征层）可以使用一组卷积核产生固定的预测集合。对于具有<code>p</code>个通道的大小为<code>m×n</code>的特征图，使用<code>3×3×p</code>卷积核卷积操作，产生类别分数或相对于默认框的坐标偏移。在应用卷积核运算的<code>m×n</code>个位置的每一处，产生一个输出值。<code>bounding box</code>偏移输出值是相对于默认框的，默认框位置则相对于特征图。</p>
+<p><strong>Default boxes and aspect ratios</strong>：对于网络顶层的多个<code>feature map</code>，将一组默认框与<code>feature map</code>每一个位置关联，每一个默认框的位置对于其在<code>feature map</code>中的位置是固定的。具体来说，<strong>对于在给定位置的<code>k</code>个框中每个框，计算<code>c</code>个类别分数和相对于原始默认框的<code>4</code>个偏移量。所以在特征图中的每个位置需要总共<code>（c+4）k</code>个卷积核，对于<code>m×n</code>特征图产生<code>（c+4）kmn</code>个输出</strong>。这里的默认框类似于<code>Faster R-CNN</code>中使用的<code>anchor boxes</code>，<code>Faster R-CNN</code>将<code>anchor</code>只用在基础网络的最后一个卷积层的输出上，但本文将其应用在不同分辨率的<code>feature map</code>中。在多个特征图中使用不同的默认框形状，可以有效地离散可能的输出框形状空间。</p>
+<p><strong>SSD与YOLO网络结构图对比如下</strong>：</p>
+<p><code>SSD</code>模型在基础网络的末尾添加了几个特征层，这些层预测了对于不同尺度和高宽比的默认框的偏移及其相关置信度。<code>YOLO</code>是用全连接层预测结果，而<code>SSD</code>是用卷积层预测结果。</p>
+<center><img src="/images/SSD/SSDandYOLO.png" width="90%"></center>
+
+<p> 从上图中可以看出，<code>SSD</code>使用<code>VGG-16</code>作为<code>basenet</code>，<code>conv4_3</code>输出的<code>feature map</code>也被进行卷积操作预测结果，在<code>VGG16</code>的<code>conv5_3</code>后，用卷积层替代了全连接层，然后是<code>SSD</code>增加的额外的<code>feature layer</code>。<strong>最后网络输出了<code>9732</code>个候选框信息</strong>（<code>38x38x4+19x19x6+10x10x6+5x5x6+3x3x4+1x4</code>）。不同层级，不同尺度的<code>feature map</code>用作预测，所有的这些预测又经过了非极大值抑制得到最终结果。</p>
+<h2 id="Training"><a href="#Training" class="headerlink" title="Training"></a>Training</h2><p> 在训练时，<code>SSD</code>与那些用<code>region proposals + pooling</code>方法的区别是：<code>SSD</code>训练图像中的<code>ground truth</code>需要被匹配到<code>default boxes</code>上。如上面的图中，狗的<code>ground truth</code>是红色的<code>bounding boxes</code>，在进行标注的时候，要将红色的 <code>ground truth box</code>匹配到图（<code>c</code>）中一系列固定输出的<code>boxes</code>中的一个，即图（<code>c</code>）中的红色虚线框。<code>SSD</code>的输出是事先定义好的，一系列固定大小的<code>bounding boxes</code>。</p>
+<p><strong>Matching strategy</strong>：对于每一个<code>ground truth box</code>，选择一些位置不同，高宽比以及尺度不同的<code>default box</code>。首先把每个<code>ground truth box</code>与和它具有最高<code>IoU</code>的默认框匹配，确保每个真实标签框有一个匹配的<code>default box</code>。然后把这些<code>default box</code>与和它<code>IoU</code>高于阈值（<code>0.5</code>）的任何<code>ground truth box</code>匹配起来。添加这些匹配简化了学习问题：当存在多个重叠的<code>default box</code>时，网络可以预测多个较高的分数，而不是只能选取一个具有最大<code>IoU</code>的框。</p>
+<p><strong>Choosing scales and aspect ratios for default boxes</strong>： 大部分<code>CNN</code>网络在越深的层，<code>feature map</code>的尺寸会越来越小。这样做不仅仅是为了减少计算与内存的需求，还有个好处就是，最后提取的<code>feature map</code>就会有某种程度上的平移与尺度不变性。为了处理不同尺度的物体，这些网络将图像转换成不同的尺度，然后独立的通过<code>CNN</code>网络处理，再将这些不同尺度的图像结果进行综合。<strong>本文通过用单个网络中的若干不同层的特征图来进行预测，可以处理不同尺度的目标检测，同时还在所有目标尺度上共享参数</strong>。一些文献表明使用来自较低层的特征图可以提高语义分割质量，因为较低层保留的图像细节越多。添加从高层特征图下采样的全局上下文池化可以帮助平滑分割结果。受这些方法的启发，使用低层和高层的特征图进行检测预测。</p>
+<p>网络中不同层级的特征图具有不同的感受野大小。这里的感受野，指的是输出的<code>feature map</code>上的一个节点，其对应输入图像上尺寸的大小。在<code>SSD</code>框架内，默认框不需要对应于每层的实际感受野。我们可以设计默认框的平铺，使得<strong>特定特征图，学习响应特定尺度的目标</strong>。</p>
+<p> 通过组合多个特征图在每个位置不同尺寸和宽高比的所有默认框的预测，得到了具有多样化的预测集合，覆盖各种目标尺寸和形状。例如狗被匹配到<code>4×4</code>特征图中的默认框，但不匹配到<code>8×8</code>特征图中的任何默认框。这是因为那些默认框具有不同的尺度但不匹配狗的<code>bounding box</code>，因此在训练期间被认为是负样本。</p>
+<p><strong>Hard negative mining</strong>：在匹配步骤之后，大多数默认框都是负样本，特别是当可能的默认框数量很大时。这导致了训练期间正负样本的严重不平衡。所以按照每个默认框的最高置信度对它们进行排序，并选择前面的那些，使得负样本和正样本之间的比率最多为<code>3：1</code>，以代替使用所有的负样本。这导致更快的优化和更稳定的训练。</p>
+<h1 id="Result"><a href="#Result" class="headerlink" title="Result"></a>Result</h1><center><img src="/images/SSD/result.png" width="70%"></center>
+
+<h1 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h1><ol>
+<li><a href="https://arxiv.org/abs/1512.02325" target="_blank" rel="noopener">论文原文</a></li>
+<li><a href="http://blog.csdn.net/u010167269/article/details/52563573" target="_blank" rel="noopener">论文阅读：SSD</a></li>
+<li><a href="http://blog.csdn.net/u014380165/article/details/72824889" target="_blank" rel="noopener">SSD算法及Caffe代码详解</a></li>
+</ol>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/object-detection/" rel="tag"># object detection</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/04/10/FaceNet/" rel="next" title="FaceNet:A Unified Embedding for Face Recognition and Clustering">
+                <i class="fa fa-chevron-left"></i> FaceNet:A Unified Embedding for Face Recognition and Clustering
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/04/15/R-FCN/" rel="prev" title="R-FCN:Object Detection via Region-based Fully Convolutional Networks">
+                R-FCN:Object Detection via Region-based Fully Convolutional Networks <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/cat.jpg"
+                alt="Ting Zhang" />
+            
+              <p class="site-author-name" itemprop="name">Ting Zhang</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">17</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">2</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">6</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/zhangting2020" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:zhangting_2017@163.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Introduction"><span class="nav-number">1.</span> <span class="nav-text">Introduction</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#The-Single-Shot-Detector-SSD"><span class="nav-number">2.</span> <span class="nav-text">The Single Shot Detector (SSD)</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Model"><span class="nav-number">2.1.</span> <span class="nav-text">Model</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Training"><span class="nav-number">2.2.</span> <span class="nav-text">Training</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Result"><span class="nav-number">3.</span> <span class="nav-text">Result</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Reference"><span class="nav-number">4.</span> <span class="nav-text">Reference</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Ting Zhang</span>
+
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+          <span id="scrollpercent"><span>0</span>%</span>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+  
+</body>
+</html>
