@@ -66,7 +66,7 @@
 
 
 
-  <meta name="keywords" content="Hexo,计算机视觉,目标检测" />
+  <meta name="keywords" content="object detection," />
 
 
 
@@ -77,13 +77,26 @@
 
 
 
-<meta property="og:type" content="website">
-<meta property="og:title" content="Tina&#39;s Blog">
-<meta property="og:url" content="http://yoursite.com/archives/2018/04/index.html">
+<meta name="description" content="过去的目标检测都是用分类器去实现检测，本文构造的检测器，将目标检测作为一种回归空间分离的边界框和相关类概率的问题。一次预测中，一个神经网络（single network）直接从整幅图像中预测出边界框和类别概率，是一种端到端的实现。">
+<meta name="keywords" content="object detection">
+<meta property="og:type" content="article">
+<meta property="og:title" content="YOLO">
+<meta property="og:url" content="http://yoursite.com/2018/04/13/YOLO/index.html">
 <meta property="og:site_name" content="Tina&#39;s Blog">
+<meta property="og:description" content="过去的目标检测都是用分类器去实现检测，本文构造的检测器，将目标检测作为一种回归空间分离的边界框和相关类概率的问题。一次预测中，一个神经网络（single network）直接从整幅图像中预测出边界框和类别概率，是一种端到端的实现。">
 <meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://yoursite.com/images/YOLO/overview.png">
+<meta property="og:image" content="http://yoursite.com/images/YOLO/box.png">
+<meta property="og:image" content="http://yoursite.com/images/YOLO/score.png">
+<meta property="og:image" content="http://yoursite.com/2018/04/13/YOLO/img/tensor1.gif">
+<meta property="og:image" content="http://yoursite.com/images/YOLO/network.png">
+<meta property="og:image" content="http://yoursite.com/images/YOLO/train.png">
+<meta property="og:image" content="http://yoursite.com/images/YOLO/loss.jpg">
+<meta property="og:updated_time" content="2018-05-20T10:34:27.199Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Tina&#39;s Blog">
+<meta name="twitter:title" content="YOLO">
+<meta name="twitter:description" content="过去的目标检测都是用分类器去实现检测，本文构造的检测器，将目标检测作为一种回归空间分离的边界框和相关类概率的问题。一次预测中，一个神经网络（single network）直接从整幅图像中预测出边界框和类别概率，是一种端到端的实现。">
+<meta name="twitter:image" content="http://yoursite.com/images/YOLO/overview.png">
 
 
 
@@ -113,13 +126,13 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/archives/2018/04/"/>
+  <link rel="canonical" href="http://yoursite.com/2018/04/13/YOLO/"/>
 
 
 
 
 
-  <title>归档 | Tina's Blog</title>
+  <title>YOLO | Tina's Blog</title>
   
 
 
@@ -138,7 +151,7 @@
     
   
 
-  <div class="container sidebar-position-left page-archive">
+  <div class="container sidebar-position-left page-post-detail">
     <div class="headband"></div>
 
     <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
@@ -276,259 +289,250 @@
           <div id="content" class="content">
             
 
-  
-  
-  
-  <div class="post-block archive">
-    <div id="posts" class="posts-collapse">
-      <span class="archive-move-on"></span>
+  <div id="posts" class="posts-expand">
+    
 
-      <span class="archive-page-counter">
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/04/13/YOLO/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Ting Zhang">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/cat.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Tina's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
         
         
+          <h1 class="post-title" itemprop="name headline">YOLO</h1>
         
+
+        <div class="post-meta">
           
-        
-        嗯..! 目前共计 18 篇日志。 继续努力。
-      </span>
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-04-13T14:26:52+08:00">
+                2018-04-13
+              </time>
+            
 
-      
+            
 
-        
-        
-        
+            
+          </span>
 
-        
           
-          <div class="collection-title">
-            <h1 class="archive-year" id="archive-year-2018">2018</h1>
-          </div>
-        
-        
-
-        
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h2 class="post-title">
-        
-            <a class="post-title-link" href="/2018/04/25/mtcnn/" itemprop="url">
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
               
-                <span itemprop="name">Joint Face Detection and Alignment using Multi-task Cascaded Convolutional Networks</span>
+                <span class="post-meta-item-text">分类于</span>
               
-            </a>
-        
-      </h2>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/CNN/" itemprop="url" rel="index">
+                    <span itemprop="name">CNN</span>
+                  </a>
+                </span>
 
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2018-04-25T12:56:33+08:00"
-              content="2018-04-25" >
-          04-25
-        </time>
-      </div>
+                
+                
+              
+            </span>
+          
 
-    </header>
-  </article>
+          
+            
+          
 
+          
+          
 
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                  <span class="post-meta-divider">|</span>
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  2,358
+                </span>
+              
+
+              
+
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
 
       
-
-        
-        
-        
-
-        
-        
-
-        
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h2 class="post-title">
-        
-            <a class="post-title-link" href="/2018/04/15/R-FCN/" itemprop="url">
-              
-                <span itemprop="name">R-FCN:Object Detection via Region-based Fully Convolutional Networks</span>
-              
-            </a>
-        
-      </h2>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2018-04-15T11:28:26+08:00"
-              content="2018-04-15" >
-          04-15
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
-
       
 
-        
-        
-        
+      
+        <blockquote>
+<p>过去的目标检测都是用分类器去实现检测，本文构造的检测器，将目标检测作为一种回归空间分离的边界框和相关类概率的问题。一次预测中，一个神经网络（<code>single network</code>）直接从整幅图像中预测出边界框和类别概率，是一种端到端的实现。<br><a id="more"></a></p>
+</blockquote>
+<h1 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h1><p>当前的检测系统是把检测作为分类问题。系统使用目标分类器，并且在图像中不同位置和尺度上进行判断。如<code>R-CNN</code>先提出候选框，然后对每个候选框使用分类器，分类之后精修边界框并且去除重复的框。这种方式速度慢并且很难优化，因为每一个独立的部分都必须单独训练。</p>
+<p><strong>本文将目标检测重新设计为一种单一的回归问题，直接从图像像素得到边界框坐标和类别概率</strong>。在图像中只需要看一次（<code>You Only Look Once</code>）就知道目标是否存在，存在于哪里。</p>
+<p><code>YOLO</code>的大致流程如下图：一个单卷积网络同时预测多个<code>bounding box</code>和相应的类别概率。首先对输入图像缩放到<code>448×448</code>，然后对其运行单卷积网络，最后使用非极大值抑制消除重复框。</p>
+<center><img src="/images/YOLO/overview.png" width="70%"></center>
 
-        
-        
+<h1 id="Unified-Detection"><a href="#Unified-Detection" class="headerlink" title="Unified Detection"></a>Unified Detection</h1><ul>
+<li><code>YOLO</code>中，输入图像被划分为<code>S×S</code>的网格，如果一个目标的中心落在某一个网格中，则该网格负责检测这个目标。</li>
+<li><strong>每一个网格预测出<code>B</code>个<code>bounding box</code>以及这些<code>box</code>对应的置信度分数</strong>，这些分数反映了模型有多大的把握认为这个<code>box</code>包含一个目标并且预测的<code>bounding box</code>有多精确。<code>Bounding box</code>信息包含<code>5</code>个数据值，分别是<code>x</code>,<code>y</code>,<code>w</code>,<code>h</code>,和<code>confidence</code>。其中<code>x</code>,<code>y</code>是指当前格子预测的物体的<code>bounding box</code>中心位置的坐标。<code>w</code>,<code>h</code>是<code>bounding box</code>的宽度和高度。<code>confidence = Pr(Object)*IoU</code>，如果该网格没有目标，则<code>Pr(Object)</code>为<code>0</code>，否则为<code>1</code>。所以当网格里有目标时，<code>condifence</code>应该与预测值和<code>ground truth</code>的<code>IoU</code>相等。</li>
+<li>每一个网格也预测<code>C</code>个类别条件概率$Pr(Class_i|Obeject)$，表示在该网格包含目标的前提下，目标是某种类别的概率。不管一个网格预测多少个<code>bounding box</code>，总之对这个网格预测出<code>C</code>个类别条件概率。<strong><code>confidence</code>是针对每个<code>bounding box</code>的，而类别条件概率是针对每个网格的</strong>。<center><img src="/images/YOLO/box.png" width="58%"></center><br><center><img src="/images/YOLO/score.png" width="60%"></center>
 
-        
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h2 class="post-title">
-        
-            <a class="post-title-link" href="/2018/04/15/SSD/" itemprop="url">
-              
-                <span itemprop="name">SSD:Single Shot MultiBox Detector</span>
-              
-            </a>
-        
-      </h2>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2018-04-15T10:12:05+08:00"
-              content="2018-04-15" >
-          04-15
-        </time>
-      </div>
-
-    </header>
-  </article>
+</li>
+</ul>
+<p>上面中，组合每个网格预测的检测框和类条件概率，不仅得到了每个候选框的位置还得到了对应的类别概率。最后使用<code>NMS</code>消除重叠的框。</p>
+<p><strong>总结一下<code>SSD</code>的思想</strong>：将输入图像划分为<code>SxS</code>的网格，对每一个网格，预测<code>B</code>个<code>bounding box</code>，每个<code>bounding box</code>包含<code>4</code>个位置信息和<code>1</code>个<code>bounding box</code>置信度分数；同时对每一个网格还预测了<code>C</code>个类别条件概率。那么对一幅图，就会得到<code>SxS(Bx5+C)</code>的<code>tensor</code>。</p>
+<p>作者在<code>VOC</code>数据上使用的是<code>S=7</code>，<code>B=2</code>，<code>C=20</code>，也就是最终得到一个<code>7x7x30</code>的<code>tensor</code>。</p>
+<center><img src="img/tensor1.gif" width="100%"></center>
 
 
+<h2 id="Network-Design"><a href="#Network-Design" class="headerlink" title="Network Design"></a>Network Design</h2><p>检测网络一共有<code>24</code>个卷积层和<code>2</code>个全连接层。其中可以看到<code>1×1</code>的降维层和<code>3×3</code>的卷积层的组合使用。</p>
+<center><img src="/images/YOLO/network.png" width="80%"></center>
+
+<h2 id="Training"><a href="#Training" class="headerlink" title="Training"></a>Training</h2><p>YOLO模型训练分为两步：</p>
+<ul>
+<li>预训练。使用<code>ImageNet</code>中<code>1000</code>类数据训练<code>YOLO</code>网络的前<code>20</code>个卷积层 <code>+</code> <code>1</code>个<code>average</code>池化层 <code>+</code> <code>1</code>个全连接层。训练图像分辨率<code>resize</code>到<code>224x224</code>。</li>
+<li>回到前面的网络图，加入<code>4</code>个卷积层和<code>2</code>个全连接层，构成<code>YOLO</code>网络。用上一步骤得到的前<code>20</code>个卷积层网络参数来初始化<code>YOLO</code>模型前<code>20</code>个卷积层的网络参数，然后用<code>VOC</code>中<code>20</code>类标注数据进行<code>YOLO</code>模型训练。检测要求细粒度的视觉信息，在训练检测模型时，将输入图像分辨率<code>resize</code>到<code>448x448</code>。</li>
+</ul>
+<p>训练时，每个目标被匹配到对应的某个网格，训练过程中调整这个网格的类别概率，使真实目标类别的概率最高，其它的尽可能小，在每个网格预测的<code>bounding box</code>中找到最好的那个，并且调整它的位置，提高置信度，同时降低其它候选框的置信度。对于没有匹配任何目标的网格，降低这些网格中候选框的置信度，不用调整候选框位置和类别概率。</p>
+<center><img src="/images/YOLO/train.png" width="100%"></center><br>## Loss<br><code>YOLO</code>使用平方和误差作为<code>loss</code>函数来优化模型参数。<br>- 位置误差（坐标、<code>IoU</code>）与分类误差对网络<code>loss</code>的贡献值是不同的，因此<code>YOLO</code>在计算<code>loss</code>时，使用权重为<code>5</code>的因子来修正位置误差。<br>- 在计算<code>IoU</code>误差时，包含物体的格子与不包含物体的格子，二者的<code>IOU</code>误差对网络<code>loss</code>的贡献是不同的。若采用相同的权值，那么不包含物体的格子的<code>confidence</code>值近似为<code>0</code>，变相放大了包含物体的格子的<code>confidence</code>误差在计算网络参数梯度时的影响。为解决这个问题，<code>YOLO</code> 使用权重为<code>0.5</code>的因子修正<code>IoU</code>误差。（注此处的“包含”是指存在一个物体，它的中心坐标落入到格子内）。<br>- 对于相等的误差值，大物体误差对检测的影响应小于小物体误差对检测的影响。这是因为，计算位置偏差时，大的<code>bounding box</code>上的误差和小的<code>bounding box</code>上的误差对各自的检测精确度影响是不一样的（小误差对应于大检测框，影响很小，而对于小检测框影响较大）。<code>YOLO</code>将物体大小的信息项（<code>w</code>和<code>h</code>）进行求平方根来改进这个问题。（注：这个方法并不能完全解决这个问题）。<br><br>综上，<code>YOLO</code>在训练过程中<code>Loss</code>计算如下式所示：<br><br><center><img src="/images/YOLO/loss.jpg" width="60%"></center>
+
+<h2 id="Limitations-of-YOLO"><a href="#Limitations-of-YOLO" class="headerlink" title="Limitations of YOLO"></a>Limitations of YOLO</h2><p><code>YOLO</code>的局限性：</p>
+<ul>
+<li><code>Bounding box</code>预测上的空间限制，因为每一个网格只预测<code>2</code>个<code>box</code>，并且最终只得到这个网格的目标类别，因为当目标的中心落入网格时，这个网格专门负责这一个目标。这种空间局限性限制了模型预测出那些挨得近的目标的数量（例如一个网格里可能会有多个小目标），<strong><code>YOLO</code>对小目标检测性能并不好</strong>。</li>
+<li><strong>使用相对粗糙的特征去预测，影响了检测效果</strong>。因为网络中对输入图像进行了多次下采样。</li>
+<li><strong><code>loss</code>方程对小<code>bounding box</code>和大<code>bounding box</code>上误差的处理是相同的</strong>。一般大边界框里的小误差是良性的，而小边界框里的小误差在<code>IoU</code>上有着更大的影响。<strong>虽然采用求平方根方式，但没有根本解决问题</strong>，从而降低了物体检测的定位准确性。</li>
+</ul>
+<h1 id="Comparison-to-Other-Detection-Systems"><a href="#Comparison-to-Other-Detection-Systems" class="headerlink" title="Comparison to Other Detection Systems"></a>Comparison to Other Detection Systems</h1><p><code>R-CNN</code>：生成<code>proposal</code>然后卷积网络提取特征，再做分类并且调整<code>bounding box</code>，这种复杂的流程中每一阶段都需要独立且精细地调整，因此速度慢。<br><code>YOLO</code>：把空间限制放在网格的<code>proposal</code>上，这帮助缓解了同一个目标的重复检测。<code>YOLO</code>提取的<code>bounding box</code>更少（<code>98</code>，而选择性搜索<code>2000</code>）。<br><code>Fast</code>和<code>Faster R-CNN</code>：致力于通过共享计算以及使用神经网络代替选择性搜索去提取<code>proposal</code>从而加速<code>R-CNN</code>，但是也只是在<code>R-CNN</code>基础上有一定的精度和速度的提升，仍然达不到实时。</p>
+<p><strong>YOLO模型相对于之前的物体检测方法有多个优点：</strong></p>
+<ul>
+<li><strong><code>YOLO</code>检测物体非常快</strong>。因为没有复杂的检测流程，<code>YOLO</code>可以非常快的完成物体检测任务。标准版本的<code>YOLO</code>在<code>Titan X</code>的<code>GPU</code>上能达到<code>45 FPS</code>。更快的<code>Fast YOLO</code>检测速度可以达到<code>155 FPS</code>。而且，<code>YOLO</code>的<code>mAP</code>是之前其他实时物体检测系统的两倍以上。</li>
+<li><strong><code>YOLO</code>可以很好的避免背景错误，避免产生<code>false positives</code></strong>。 不像其他物体检测系统使用了滑窗或<code>region proposal</code>，分类器只能得到图像的局部信息。<code>YOLO</code>在训练和测试时都能够看到一整张图像的信息，因此<code>YOLO</code>在检测物体时能很好的利用上下文信息，从而不容易在背景上预测出错误的物体信息。和<code>Fast R-CNN</code>相比，<code>YOLO</code>的将背景错误判断为目标的比例不到<code>Fast R-CNN</code>的一半。</li>
+<li><code>YOLO</code>可以学到物体的泛化特征。当<code>YOLO</code>在自然图像上做训练，在艺术作品上做测试时，<code>YOLO</code>表现的性能比<code>DPM</code>、<code>R-CNN</code>等之前的物体检测系统要好很多。因为<code>YOLO</code>可以学习到高度泛化的特征，从而迁移到其他领域。</li>
+</ul>
+<p>尽管YOLO有这些优点，它也有一些<strong>缺点</strong>：</p>
+<ul>
+<li><code>YOLO</code>的物体检测精度低于其他<code>state-of-the-art</code>的物体检测系统。 </li>
+<li><code>YOLO</code>容易产生物体的定位错误。 </li>
+<li><code>YOLO</code>对小物体的检测效果不好（尤其是密集的小物体，因为一个栅格只能负责1个目标）。</li>
+</ul>
+<h1 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h1><ol>
+<li><a href="https://arxiv.org/abs/1506.02640" target="_blank" rel="noopener">论文原文</a></li>
+<li><a href="https://zhuanlan.zhihu.com/p/25236464" target="_blank" rel="noopener">YOLO详解</a></li>
+<li><a href="http://blog.csdn.net/hrsstudy/article/details/70305791" target="_blank" rel="noopener">YOLOv1论文理解</a></li>
+</ol>
 
       
-
-        
-        
-        
-
-        
-        
-
-        
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h2 class="post-title">
-        
-            <a class="post-title-link" href="/2018/04/13/YOLO/" itemprop="url">
-              
-                <span itemprop="name">YOLO</span>
-              
-            </a>
-        
-      </h2>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2018-04-13T14:26:52+08:00"
-              content="2018-04-13" >
-          04-13
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
-
-      
-
-        
-        
-        
-
-        
-        
-
-        
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h2 class="post-title">
-        
-            <a class="post-title-link" href="/2018/04/10/FaceNet/" itemprop="url">
-              
-                <span itemprop="name">FaceNet:A Unified Embedding for Face Recognition and Clustering</span>
-              
-            </a>
-        
-      </h2>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2018-04-10T18:06:38+08:00"
-              content="2018-04-10" >
-          04-10
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
-
-      
-
-        
-        
-        
-
-        
-        
-
-        
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h2 class="post-title">
-        
-            <a class="post-title-link" href="/2018/04/10/DeepID/" itemprop="url">
-              
-                <span itemprop="name">DeepID:Deep Learning Face Representation from Predicting 10,000 Classes</span>
-              
-            </a>
-        
-      </h2>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2018-04-10T11:04:01+08:00"
-              content="2018-04-10" >
-          04-10
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
-
-      
-
     </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/object-detection/" rel="tag"># object detection</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/04/10/FaceNet/" rel="next" title="FaceNet:A Unified Embedding for Face Recognition and Clustering">
+                <i class="fa fa-chevron-left"></i> FaceNet:A Unified Embedding for Face Recognition and Clustering
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/04/15/SSD/" rel="prev" title="SSD:Single Shot MultiBox Detector">
+                SSD:Single Shot MultiBox Detector <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
   </div>
   
   
   
+  </article>
 
-  
 
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
 
 
           </div>
@@ -536,6 +540,10 @@
 
 
           
+
+  
+
+
 
         </div>
         
@@ -556,8 +564,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+      <section class="site-overview-wrap sidebar-panel">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
@@ -637,6 +654,22 @@
         </div>
       </section>
 
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Introduction"><span class="nav-number">1.</span> <span class="nav-text">Introduction</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Unified-Detection"><span class="nav-number">2.</span> <span class="nav-text">Unified Detection</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Network-Design"><span class="nav-number">2.1.</span> <span class="nav-text">Network Design</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Training"><span class="nav-number">2.2.</span> <span class="nav-text">Training</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Limitations-of-YOLO"><span class="nav-number">2.3.</span> <span class="nav-text">Limitations of YOLO</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Comparison-to-Other-Detection-Systems"><span class="nav-number">3.</span> <span class="nav-text">Comparison to Other Detection Systems</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Reference"><span class="nav-number">4.</span> <span class="nav-text">Reference</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
       
 
       
@@ -773,6 +806,10 @@
 
 
   
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
 
   
 

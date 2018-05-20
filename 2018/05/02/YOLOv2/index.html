@@ -89,7 +89,7 @@
 <meta property="og:image" content="http://yoursite.com/images/YOLOv2/box.png">
 <meta property="og:image" content="http://yoursite.com/images/YOLOv2/darknet.png">
 <meta property="og:image" content="http://yoursite.com/images/YOLOv2/wordtree.png">
-<meta property="og:updated_time" content="2018-05-20T08:57:39.433Z">
+<meta property="og:updated_time" content="2018-05-20T10:41:54.752Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="YOLO9000:Better, Faster, Stronger">
 <meta name="twitter:description" content="这篇文章发表在2016年，提出了YOLO的第二个版本。YOLOv2在67FPS的检测速度下，可以在VOC2007上达到76.8的mAP。在40FPS的速度下，有78.6的mAP，比使用ResNet的Faster R-CNN和SSD更好。YOLO9000可以检测超过9000种目标。">
@@ -386,7 +386,7 @@
                   <span class="post-meta-item-text">字数统计&#58;</span>
                 
                 <span title="字数统计">
-                  3,233
+                  3,220
                 </span>
               
 
@@ -464,7 +464,7 @@
 <p>这种方法带来了一些挑战，检测数据集只有常见目标和标签，而分类数据集有着更广泛的标签。ImageNet有着100多种狗，如果想要在两种任务的数据集上联合训练，需要一种连贯的方式去合并标签。</p>
 <p>分类任务中一般使用softmax层，计算所有可能类别的概率，这假设了类别之间是互斥的。因此，需要一个多标签的模型来综合数据集，使类别之间不相互包含。</p>
 <p><strong>层次分类</strong>：ImageNet的标签是从WordNet中提取的，WordNet是一个语言数据库，用于构建概念及其关系。WordNet被构造为有向图，但是本文并不使用完整的图结构，而是根据ImageNet中的概念构建层次树来简化问题，最终的结果是WordTree。使用WordTree实现分类，预测在每个节点的条件概率，也就是预测给定同义词集合的每个下位词的概率。例如，在“terrier”节点，预测：$P_r(Norfolk~terrier|terrier)$，$P_r(Yorkshire~terrier|terrier)$…</p>
-<p>如果想要计算一个特定节点的绝对概率，只需遵循通过树到达根节点的路径，并乘以条件概率。因此，如果我们想知道图片是否是诺福克梗犬，只需要计算：$$<br>\begin{aligned}<br>P_r(Norfolk~terrier)&amp;= P_r(Norfolk~terrier|terrier) \times P_r(terrier|hunting~dog) \<br>&amp;… \times P_r(mammal|animal) \times P_r(animal|physical~object)<br>\end{aligned}$$ 对于分类任务，假设图像中包含目标，因此$P_r(physical~object) = 1$。</p>
+<p>如果想要计算一个特定节点的绝对概率，只需遵循通过树到达根节点的路径，并乘以条件概率。因此，如果我们想知道图片是否是诺福克梗犬，只需要计算：$$<br>P_r(Norfolk~terrier) = P_r(Norfolk~terrier|terrier) … \times P_r(animal|physical~object)$$ 对于分类任务，假设图像中包含目标，因此$P_r(physical~object) = 1$。</p>
 <p>Darknet-19模型的训练使用1000类ImageNet数据集构建的WordTree。为了构建WordTree1k，添加中间节点将标签空间从1000扩展到1369。在训练期间，沿着树传播ground truth标签，以便如果图像被标记为“诺福克梗犬”，它也被标记为“狗”和“哺乳动物”等。为了计算条件概率，模型预测了1369个值的向量，并且计算所有同义词集合的softmax，如下图：<br>  <center><img src="/images/YOLOv2/wordtree.png" width="60%"></center><br>以这种方式实现分类具有一些益处。在新的或未知的目标类别上性能降低微小。例如，如果网络看到一只狗的图片，但不确定它是什么类型的狗，它仍然会预测具有高置信度的“狗”，但在下义词（更为具体的内容，比如某种类型的狗）上具有较低的置信度。</p>
 <p>这个公式也用于检测。不是假设每个图像都有一个目标，而是使用YOLOv2的目标预测器给出$P_r(physical~object)$的值。检测器预测bounding box和概率数。遍历树，在每个分裂中采用最高置信度路径，直到达到某个阈值，预测出目标类别。</p>
 <p><strong>联合分类和检测</strong><br>要训练一个极大尺度的检测器，因此使用COCO数据集和来自完整ImageNet的前9000类创建组合数据集。还需要评估本文的方法，所以添加ImageNet还没有包括的类别。WordTree数据集相应的具有9418个类。ImageNet是一个更大的数据集，因此对COCO进行过采样来平衡数据集，使ImageNet与COCO数量只有4：1的倍数。使用这个数据集训练YOLO9000，使用基本的YOLOv2架构，但只有3个先验box，而不是5，以限制输出大小。</p>
@@ -597,7 +597,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">17</span>
+                  <span class="site-state-item-count">18</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>

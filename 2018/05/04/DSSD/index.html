@@ -85,17 +85,18 @@
 <meta property="og:site_name" content="Tina&#39;s Blog">
 <meta property="og:description" content="这篇文章将额外的上下文信息引入到目标检测中，首先将ResNet-101和SSD组合，，然后利用反卷积层扩增这个组合的网络，为目标检测引入大尺度的上下文信息，提高准确率，特别是对小目标的检测。Deconvolutional single shot detector，因此简称DSSD。实验结果比R-FCN要好。">
 <meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://yoursite.com/images/DSSD/SSD.png">
 <meta property="og:image" content="http://yoursite.com/images/DSSD/DSSD.png">
 <meta property="og:image" content="http://yoursite.com/images/DSSD/predict_module.png">
 <meta property="og:image" content="http://yoursite.com/images/DSSD/table4.png">
 <meta property="og:image" content="http://yoursite.com/images/DSSD/Deconvolution.png">
 <meta property="og:image" content="http://yoursite.com/images/DSSD/table1.png">
 <meta property="og:image" content="http://yoursite.com/images/DSSD/table3.png">
-<meta property="og:updated_time" content="2018-05-20T09:13:41.798Z">
+<meta property="og:updated_time" content="2018-05-20T10:47:09.604Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="DSSD:Deconvolutional Single Shot Detector">
 <meta name="twitter:description" content="这篇文章将额外的上下文信息引入到目标检测中，首先将ResNet-101和SSD组合，，然后利用反卷积层扩增这个组合的网络，为目标检测引入大尺度的上下文信息，提高准确率，特别是对小目标的检测。Deconvolutional single shot detector，因此简称DSSD。实验结果比R-FCN要好。">
-<meta name="twitter:image" content="http://yoursite.com/images/DSSD/DSSD.png">
+<meta name="twitter:image" content="http://yoursite.com/images/DSSD/SSD.png">
 
 
 
@@ -388,7 +389,7 @@
                   <span class="post-meta-item-text">字数统计&#58;</span>
                 
                 <span title="字数统计">
-                  2,670
+                  2,662
                 </span>
               
 
@@ -426,7 +427,7 @@
 </ul>
 <p><strong>本文提出使用一种编码-解码的沙漏式结构在做预测前传递上下文信息</strong>。反卷积层不仅解决了在卷积神经网络中随着层数加深，feature map分辨率缩减的问题，而且为预测引入了上下文信息。</p>
 <h2 id="DSSD-model"><a href="#DSSD-model" class="headerlink" title="DSSD model"></a>DSSD model</h2><p>回归一下SSD，采用VGG作为基础网络，去掉尾部的一些层，加入了一些卷积层。下图是采用ResNet-101的SSD，如蓝色部分，SSD加入了5个额外的卷积层，ResNet-101中的conv3_x和conv5_x，以及这些添加的层，共7个层被用来为预定义的默认框预测分数和偏移量。预测的实现使用的是3x3xChannel的卷积核，一个卷积核针对一个类别分数，对于bounding box预测也是，一个卷积核针对一个坐标。</p>
-<center>&lt;img src = “/images/DSSD/SSD.png” width = 70%”&gt;</center>
+<center><img src="/images/DSSD/SSD.png" width="70%"></center>
 
 <h2 id="Using-Residual-101-in-place-of-VGG"><a href="#Using-Residual-101-in-place-of-VGG" class="headerlink" title="Using Residual 101 in place of VGG"></a>Using Residual 101 in place of VGG</h2><p><strong>第一个改进就是使用ResNet-101取代VGG作为基础网络</strong>。在conv5_x block后添加了一些层，但只是添加这些层本身并不能改善结果，因此添加了一个额外的预测模块，使用conv3_x和添加的层做预测。</p>
 <center><img src="/images/DSSD/DSSD.png" width="90%"></center>
@@ -589,7 +590,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">17</span>
+                  <span class="site-state-item-count">18</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
