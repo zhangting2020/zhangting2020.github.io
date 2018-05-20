@@ -1,0 +1,1199 @@
+<!DOCTYPE html>
+
+
+
+
+<html class="theme-next gemini" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="object detection," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="这篇文章发表于2018年，比YOLOv2网络更大，但是更精确。在320x320的分辨率下，YOLOv3处理一幅图需要22ms，mAP为28.2，与SSD一样精确但是快3倍。主要的创新点有3个：类别预测上不再使用softmax而是使用独立的logistic回归，能实现多标签预测；类似于FPN，实现多尺度预测，将不同层的特征做了融合；提出更好的基础网络，加入残差块。">
+<meta name="keywords" content="object detection">
+<meta property="og:type" content="article">
+<meta property="og:title" content="YOLOv3:An Incremental Improvement">
+<meta property="og:url" content="http://yoursite.com/2018/05/03/YOLOv3/index.html">
+<meta property="og:site_name" content="Tina&#39;s Blog">
+<meta property="og:description" content="这篇文章发表于2018年，比YOLOv2网络更大，但是更精确。在320x320的分辨率下，YOLOv3处理一幅图需要22ms，mAP为28.2，与SSD一样精确但是快3倍。主要的创新点有3个：类别预测上不再使用softmax而是使用独立的logistic回归，能实现多标签预测；类似于FPN，实现多尺度预测，将不同层的特征做了融合；提出更好的基础网络，加入残差块。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://yoursite.com/images/YOLOv3/network.png">
+<meta property="og:image" content="http://yoursite.com/images/YOLOv3/Darknet-53.png">
+<meta property="og:image" content="http://yoursite.com/images/YOLOv3/table.png">
+<meta property="og:updated_time" content="2018-05-20T07:15:27.356Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="YOLOv3:An Incremental Improvement">
+<meta name="twitter:description" content="这篇文章发表于2018年，比YOLOv2网络更大，但是更精确。在320x320的分辨率下，YOLOv3处理一幅图需要22ms，mAP为28.2，与SSD一样精确但是快3倍。主要的创新点有3个：类别预测上不再使用softmax而是使用独立的logistic回归，能实现多标签预测；类似于FPN，实现多尺度预测，将不同层的特征做了融合；提出更好的基础网络，加入残差块。">
+<meta name="twitter:image" content="http://yoursite.com/images/YOLOv3/network.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":true,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/05/03/YOLOv3/"/>
+
+
+
+
+
+  <title>YOLOv3:An Incremental Improvement | Tina's Blog</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Tina's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/05/03/YOLOv3/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Ting Zhang">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/cat.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Tina's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">YOLOv3:An Incremental Improvement</h1>
+        
+
+        <div class="post-meta">
+          
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-05-03T18:00:00+08:00">
+                2018-05-03
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/CNN/" itemprop="url" rel="index">
+                    <span itemprop="name">CNN</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                  <span class="post-meta-divider">|</span>
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  3,574
+                </span>
+              
+
+              
+
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <blockquote>
+<p>这篇文章发表于2018年，比YOLOv2网络更大，但是更精确。在320x320的分辨率下，YOLOv3处理一幅图需要22ms，mAP为28.2，与SSD一样精确但是快3倍。主要的创新点有3个：类别预测上不再使用softmax而是使用独立的logistic回归，能实现多标签预测；类似于FPN，实现多尺度预测，将不同层的特征做了融合；提出更好的基础网络，加入残差块。<br><a id="more"></a></p>
+</blockquote>
+<h1 id="The-Deal"><a href="#The-Deal" class="headerlink" title="The Deal"></a>The Deal</h1><h2 id="Bounding-Box-预测"><a href="#Bounding-Box-预测" class="headerlink" title="Bounding Box 预测"></a>Bounding Box 预测</h2><ul>
+<li>跟随YOLO9000，依然使用维度聚类和anchor box。</li>
+<li>YOLOv3使用logistic回归为每一个bounding box预测一个目标分数，如果一个先验的box比其他box和ground truth的IoU大，这个分数就为1；如果一个先验box并不是最好的，而是与真实值的IoU超过某些阈值，就忽略掉这个预测，这点跟随Faster R-CNN，本文阈值采用0.5。</li>
+<li>与Faster R-CNN不同，<strong>YOLOv3为每一个ground truth只匹配一个先验box</strong>（其实就是anchor box）。Faster R-CNN中一个ground truth匹配到两种anchor：每一个ground truth匹配到与它IoU最高的anchor，但是同时也把那些与它IoU大于0.7的anchor也当做正的，因此每一个ground truth会有多个与其匹配的anchor。</li>
+<li>如果一个先验box没有被匹配到任何ground truth，那么它对于坐标回归或者类别预测没有贡献，只对目标预测（objectness）有用，也就是预测是否为目标时才有贡献。</li>
+</ul>
+<h2 id="类别预测"><a href="#类别预测" class="headerlink" title="类别预测"></a>类别预测</h2><p><strong>使用多标签预测，每个bounding box都预测可能包含的类别。但是并不使用softmax，而是使用独立的logistic回归分类器</strong>，训练中使用二分类的交叉熵损失。更加复杂的数据集Open Image Dataset有很多重叠标签，比如女性和人就是包含关系，使用softmax其实强加了一个假设：每一个box恰好有一类，但通常不是这样的。比如一个box里包含了一个“women”，这个box还应该有“person”这个标签，因此多标签方法能够更好的拟合数据。</p>
+<ul>
+<li>softmax每一个框只得到一个标签，对应分数最高的那个，不适合做多标签分类</li>
+<li>softmax可以被多个独立的logistic分类器替代，且准确率不会下降</li>
+</ul>
+<h2 id="多尺度预测"><a href="#多尺度预测" class="headerlink" title="多尺度预测"></a>多尺度预测</h2><figure class="highlight lsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br></pre></td><td class="code"><pre><span class="line">layer     filters    size              input                output</span><br><span class="line">    <span class="number">0</span> conv     <span class="number">32</span>  <span class="number">3</span> x <span class="number">3</span> / <span class="number">1</span>   <span class="number">416</span> x <span class="number">416</span> x   <span class="number">3</span>   -&gt;   <span class="number">416</span> x <span class="number">416</span> x  <span class="number">32</span>  <span class="number">0.299</span> BFL                                                                                                                                      OPs</span><br><span class="line">    <span class="number">1</span> conv     <span class="number">64</span>  <span class="number">3</span> x <span class="number">3</span> / <span class="number">2</span>   <span class="number">416</span> x <span class="number">416</span> x  <span class="number">32</span>   -&gt;   <span class="number">208</span> x <span class="number">208</span> x  <span class="number">64</span>  <span class="number">1.595</span> BFL                                                                                                                                      OPs</span><br><span class="line">    <span class="number">2</span> conv     <span class="number">32</span>  <span class="number">1</span> x <span class="number">1</span> / <span class="number">1</span>   <span class="number">208</span> x <span class="number">208</span> x  <span class="number">64</span>   -&gt;   <span class="number">208</span> x <span class="number">208</span> x  <span class="number">32</span>  <span class="number">0.177</span> BFL                                                                                                                                      OPs</span><br><span class="line">    <span class="number">3</span> conv     <span class="number">64</span>  <span class="number">3</span> x <span class="number">3</span> / <span class="number">1</span>   <span class="number">208</span> x <span class="number">208</span> x  <span class="number">32</span>   -&gt;   <span class="number">208</span> x <span class="number">208</span> x  <span class="number">64</span>  <span class="number">1.595</span> BFL                                                                                                                                      OPs</span><br><span class="line">    <span class="number">4</span> res    <span class="number">1</span>                 <span class="number">208</span> x <span class="number">208</span> x  <span class="number">64</span>   -&gt;   <span class="number">208</span> x <span class="number">208</span> x  <span class="number">64</span></span><br><span class="line">    <span class="number">5</span> conv    <span class="number">128</span>  <span class="number">3</span> x <span class="number">3</span> / <span class="number">2</span>   <span class="number">208</span> x <span class="number">208</span> x  <span class="number">64</span>   -&gt;   <span class="number">104</span> x <span class="number">104</span> x <span class="number">128</span>  <span class="number">1.595</span> BFL                                                                                                                                      OPs</span><br><span class="line">    <span class="number">6</span> conv     <span class="number">64</span>  <span class="number">1</span> x <span class="number">1</span> / <span class="number">1</span>   <span class="number">104</span> x <span class="number">104</span> x <span class="number">128</span>   -&gt;   <span class="number">104</span> x <span class="number">104</span> x  <span class="number">64</span>  <span class="number">0.177</span> BFL                                                                                                                                      OPs</span><br><span class="line">    <span class="number">7</span> conv    <span class="number">128</span>  <span class="number">3</span> x <span class="number">3</span> / <span class="number">1</span>   <span class="number">104</span> x <span class="number">104</span> x  <span class="number">64</span>   -&gt;   <span class="number">104</span> x <span class="number">104</span> x <span class="number">128</span>  <span class="number">1.595</span> BFL                                                                                                                                      OPs</span><br><span class="line">    <span class="number">8</span> res    <span class="number">5</span>                 <span class="number">104</span> x <span class="number">104</span> x <span class="number">128</span>   -&gt;   <span class="number">104</span> x <span class="number">104</span> x <span class="number">128</span></span><br><span class="line">    <span class="number">9</span> conv     <span class="number">64</span>  <span class="number">1</span> x <span class="number">1</span> / <span class="number">1</span>   <span class="number">104</span> x <span class="number">104</span> x <span class="number">128</span>   -&gt;   <span class="number">104</span> x <span class="number">104</span> x  <span class="number">64</span>  <span class="number">0.177</span> BFL                                                                                                                                      OPs</span><br><span class="line">   <span class="number">10</span> conv    <span class="number">128</span>  <span class="number">3</span> x <span class="number">3</span> / <span class="number">1</span>   <span class="number">104</span> x <span class="number">104</span> x  <span class="number">64</span>   -&gt;   <span class="number">104</span> x <span class="number">104</span> x <span class="number">128</span>  <span class="number">1.595</span> BFL                                                                                                                                      OPs</span><br><span class="line">   <span class="number">11</span> res    <span class="number">8</span>                 <span class="number">104</span> x <span class="number">104</span> x <span class="number">128</span>   -&gt;   <span class="number">104</span> x <span class="number">104</span> x <span class="number">128</span></span><br><span class="line">   <span class="number">12</span> conv    <span class="number">256</span>  <span class="number">3</span> x <span class="number">3</span> / <span class="number">2</span>   <span class="number">104</span> x <span class="number">104</span> x <span class="number">128</span>   -&gt;    <span class="number">52</span> x  <span class="number">52</span> x <span class="number">256</span>  <span class="number">1.595</span> BFL                                                                                                                                      OPs</span><br><span class="line">   <span class="number">13</span> conv    <span class="number">128</span>  <span class="number">1</span> x <span class="number">1</span> / <span class="number">1</span>    <span class="number">52</span> x  <span class="number">52</span> x <span class="number">256</span>   -&gt;    <span class="number">52</span> x  <span class="number">52</span> x <span class="number">128</span>  <span class="number">0.177</span> BFL                                                                                                                                      OPs</span><br><span class="line">   <span class="number">14</span> conv    <span class="number">256</span>  <span class="number">3</span> x <span class="number">3</span> / <span class="number">1</span>    <span class="number">52</span> x  <span class="number">52</span> x <span class="number">128</span>   -&gt;    <span class="number">52</span> x  <span class="number">52</span> x <span class="number">256</span>  <span class="number">1.595</span> BFL                                                                                                                                      OPs</span><br><span class="line">   <span class="number">15</span> res   <span class="number">12</span>                  <span class="number">52</span> x  <span class="number">52</span> x <span class="number">256</span>   -&gt;    <span class="number">52</span> x  <span class="number">52</span> x <span class="number">256</span></span><br><span class="line">   <span class="number">16</span> conv    <span class="number">128</span>  <span class="number">1</span> x <span class="number">1</span> / <span class="number">1</span>    <span class="number">52</span> x  <span class="number">52</span> x <span class="number">256</span>   -&gt;    <span class="number">52</span> x  <span class="number">52</span> x <span class="number">128</span>  <span class="number">0.177</span> BFL                                                                                                                                      OPs</span><br><span class="line">   <span class="number">17</span> conv    <span class="number">256</span>  <span class="number">3</span> x <span class="number">3</span> / <span class="number">1</span>    <span class="number">52</span> x  <span class="number">52</span> x <span class="number">128</span>   -&gt;    <span class="number">52</span> x  <span class="number">52</span> x <span class="number">256</span>  <span class="number">1.595</span> BFL                                                                                                                                      OPs</span><br><span class="line">   <span class="number">18</span> res   <span class="number">15</span>                  <span class="number">52</span> x  <span class="number">52</span> x <span class="number">256</span>   -&gt;    <span class="number">52</span> x  <span class="number">52</span> x <span class="number">256</span></span><br><span class="line">   <span class="number">19</span> conv    <span class="number">128</span>  <span class="number">1</span> x <span class="number">1</span> / <span class="number">1</span>    <span class="number">52</span> x  <span class="number">52</span> x <span class="number">256</span>   -&gt;    <span class="number">52</span> x  <span class="number">52</span> x <span class="number">128</span>  <span class="number">0.177</span> BFL                                                                                                                                      OPs</span><br><span class="line">   <span class="number">20</span> conv    <span class="number">256</span>  <span class="number">3</span> x <span class="number">3</span> / <span class="number">1</span>    <span class="number">52</span> x  <span class="number">52</span> x <span class="number">128</span>   -&gt;    <span class="number">52</span> x  <span class="number">52</span> x <span class="number">256</span>  <span class="number">1.595</span> BFL                                                                                                                                      OPs</span><br><span class="line">   <span class="number">21</span> res   <span class="number">18</span>                  <span class="number">52</span> x  <span class="number">52</span> x <span class="number">256</span>   -&gt;    <span class="number">52</span> x  <span class="number">52</span> x <span class="number">256</span></span><br><span class="line">   <span class="number">22</span> conv    <span class="number">128</span>  <span class="number">1</span> x <span class="number">1</span> / <span class="number">1</span>    <span class="number">52</span> x  <span class="number">52</span> x <span class="number">256</span>   -&gt;    <span class="number">52</span> x  <span class="number">52</span> x <span class="number">128</span>  <span class="number">0.177</span> BFL                                                                                                                                      OPs</span><br><span class="line">   <span class="number">23</span> conv    <span class="number">256</span>  <span class="number">3</span> x <span class="number">3</span> / <span class="number">1</span>    <span class="number">52</span> x  <span class="number">52</span> x <span class="number">128</span>   -&gt;    <span class="number">52</span> x  <span class="number">52</span> x <span class="number">256</span>  <span class="number">1.595</span> BFL                                                                                                                                      OPs</span><br><span class="line">   <span class="number">24</span> res   <span class="number">21</span>                  <span class="number">52</span> x  <span class="number">52</span> x <span class="number">256</span>   -&gt;    <span class="number">52</span> x  <span class="number">52</span> x <span class="number">256</span></span><br><span class="line">   <span class="number">25</span> conv    <span class="number">128</span>  <span class="number">1</span> x <span class="number">1</span> / <span class="number">1</span>    <span class="number">52</span> x  <span class="number">52</span> x <span class="number">256</span>   -&gt;    <span class="number">52</span> x  <span class="number">52</span> x <span class="number">128</span>  <span class="number">0.177</span> BFL                                                                                                                                      OPs</span><br><span class="line">   <span class="number">26</span> conv    <span class="number">256</span>  <span class="number">3</span> x <span class="number">3</span> / <span class="number">1</span>    <span class="number">52</span> x  <span class="number">52</span> x <span class="number">128</span>   -&gt;    <span class="number">52</span> x  <span class="number">52</span> x <span class="number">256</span>  <span class="number">1.595</span> BFL                                                                                                                                      OPs</span><br><span class="line">   <span class="number">27</span> res   <span class="number">24</span>                  <span class="number">52</span> x  <span class="number">52</span> x <span class="number">256</span>   -&gt;    <span class="number">52</span> x  <span class="number">52</span> x <span class="number">256</span></span><br><span class="line">   <span class="number">28</span> conv    <span class="number">128</span>  <span class="number">1</span> x <span class="number">1</span> / <span class="number">1</span>    <span class="number">52</span> x  <span class="number">52</span> x <span class="number">256</span>   -&gt;    <span class="number">52</span> x  <span class="number">52</span> x <span class="number">128</span>  <span class="number">0.177</span> BFL                                                                                                                                      OPs</span><br><span class="line">   <span class="number">29</span> conv    <span class="number">256</span>  <span class="number">3</span> x <span class="number">3</span> / <span class="number">1</span>    <span class="number">52</span> x  <span class="number">52</span> x <span class="number">128</span>   -&gt;    <span class="number">52</span> x  <span class="number">52</span> x <span class="number">256</span>  <span class="number">1.595</span> BFL                                                                                                                                      OPs</span><br><span class="line">   <span class="number">30</span> res   <span class="number">27</span>                  <span class="number">52</span> x  <span class="number">52</span> x <span class="number">256</span>   -&gt;    <span class="number">52</span> x  <span class="number">52</span> x <span class="number">256</span></span><br><span class="line">   <span class="number">31</span> conv    <span class="number">128</span>  <span class="number">1</span> x <span class="number">1</span> / <span class="number">1</span>    <span class="number">52</span> x  <span class="number">52</span> x <span class="number">256</span>   -&gt;    <span class="number">52</span> x  <span class="number">52</span> x <span class="number">128</span>  <span class="number">0.177</span> BFL                                                                                                                                      OPs</span><br><span class="line">   <span class="number">32</span> conv    <span class="number">256</span>  <span class="number">3</span> x <span class="number">3</span> / <span class="number">1</span>    <span class="number">52</span> x  <span class="number">52</span> x <span class="number">128</span>   -&gt;    <span class="number">52</span> x  <span class="number">52</span> x <span class="number">256</span>  <span class="number">1.595</span> BFL                                                                                                                                      OPs</span><br><span class="line">   <span class="number">33</span> res   <span class="number">30</span>                  <span class="number">52</span> x  <span class="number">52</span> x <span class="number">256</span>   -&gt;    <span class="number">52</span> x  <span class="number">52</span> x <span class="number">256</span></span><br><span class="line">   <span class="number">34</span> conv    <span class="number">128</span>  <span class="number">1</span> x <span class="number">1</span> / <span class="number">1</span>    <span class="number">52</span> x  <span class="number">52</span> x <span class="number">256</span>   -&gt;    <span class="number">52</span> x  <span class="number">52</span> x <span class="number">128</span>  <span class="number">0.177</span> BFL                                                                                                                                      OPs</span><br><span class="line">   <span class="number">35</span> conv    <span class="number">256</span>  <span class="number">3</span> x <span class="number">3</span> / <span class="number">1</span>    <span class="number">52</span> x  <span class="number">52</span> x <span class="number">128</span>   -&gt;    <span class="number">52</span> x  <span class="number">52</span> x <span class="number">256</span>  <span class="number">1.595</span> BFL                                                                                                                                      OPs</span><br><span class="line">   <span class="number">36</span> res   <span class="number">33</span>                  <span class="number">52</span> x  <span class="number">52</span> x <span class="number">256</span>   -&gt;    <span class="number">52</span> x  <span class="number">52</span> x <span class="number">256</span></span><br><span class="line">   <span class="number">37</span> conv    <span class="number">512</span>  <span class="number">3</span> x <span class="number">3</span> / <span class="number">2</span>    <span class="number">52</span> x  <span class="number">52</span> x <span class="number">256</span>   -&gt;    <span class="number">26</span> x  <span class="number">26</span> x <span class="number">512</span>  <span class="number">1.595</span> BFL                                                                                                                                      OPs</span><br><span class="line">   <span class="number">38</span> conv    <span class="number">256</span>  <span class="number">1</span> x <span class="number">1</span> / <span class="number">1</span>    <span class="number">26</span> x  <span class="number">26</span> x <span class="number">512</span>   -&gt;    <span class="number">26</span> x  <span class="number">26</span> x <span class="number">256</span>  <span class="number">0.177</span> BFL                                                                                                                                      OPs</span><br><span class="line">   <span class="number">39</span> conv    <span class="number">512</span>  <span class="number">3</span> x <span class="number">3</span> / <span class="number">1</span>    <span class="number">26</span> x  <span class="number">26</span> x <span class="number">256</span>   -&gt;    <span class="number">26</span> x  <span class="number">26</span> x <span class="number">512</span>  <span class="number">1.595</span> BFL                                                                                                                                      OPs</span><br><span class="line">   <span class="number">40</span> res   <span class="number">37</span>                  <span class="number">26</span> x  <span class="number">26</span> x <span class="number">512</span>   -&gt;    <span class="number">26</span> x  <span class="number">26</span> x <span class="number">512</span></span><br><span class="line">   <span class="number">41</span> conv    <span class="number">256</span>  <span class="number">1</span> x <span class="number">1</span> / <span class="number">1</span>    <span class="number">26</span> x  <span class="number">26</span> x <span class="number">512</span>   -&gt;    <span class="number">26</span> x  <span class="number">26</span> x <span class="number">256</span>  <span class="number">0.177</span> BFL                                                                                                                                      OPs</span><br><span class="line">   <span class="number">42</span> conv    <span class="number">512</span>  <span class="number">3</span> x <span class="number">3</span> / <span class="number">1</span>    <span class="number">26</span> x  <span class="number">26</span> x <span class="number">256</span>   -&gt;    <span class="number">26</span> x  <span class="number">26</span> x <span class="number">512</span>  <span class="number">1.595</span> BFL                                                                                                                                      OPs</span><br><span class="line">   <span class="number">43</span> res   <span class="number">40</span>                  <span class="number">26</span> x  <span class="number">26</span> x <span class="number">512</span>   -&gt;    <span class="number">26</span> x  <span class="number">26</span> x <span class="number">512</span></span><br><span class="line">   <span class="number">44</span> conv    <span class="number">256</span>  <span class="number">1</span> x <span class="number">1</span> / <span class="number">1</span>    <span class="number">26</span> x  <span class="number">26</span> x <span class="number">512</span>   -&gt;    <span class="number">26</span> x  <span class="number">26</span> x <span class="number">256</span>  <span class="number">0.177</span> BFL                                                                                                                                      OPs</span><br><span class="line">   <span class="number">45</span> conv    <span class="number">512</span>  <span class="number">3</span> x <span class="number">3</span> / <span class="number">1</span>    <span class="number">26</span> x  <span class="number">26</span> x <span class="number">256</span>   -&gt;    <span class="number">26</span> x  <span class="number">26</span> x <span class="number">512</span>  <span class="number">1.595</span> BFL                                                                                                                                      OPs</span><br><span class="line">   <span class="number">46</span> res   <span class="number">43</span>                  <span class="number">26</span> x  <span class="number">26</span> x <span class="number">512</span>   -&gt;    <span class="number">26</span> x  <span class="number">26</span> x <span class="number">512</span></span><br><span class="line">   <span class="number">47</span> conv    <span class="number">256</span>  <span class="number">1</span> x <span class="number">1</span> / <span class="number">1</span>    <span class="number">26</span> x  <span class="number">26</span> x <span class="number">512</span>   -&gt;    <span class="number">26</span> x  <span class="number">26</span> x <span class="number">256</span>  <span class="number">0.177</span> BFL                                                                                                                                      OPs</span><br><span class="line">   <span class="number">48</span> conv    <span class="number">512</span>  <span class="number">3</span> x <span class="number">3</span> / <span class="number">1</span>    <span class="number">26</span> x  <span class="number">26</span> x <span class="number">256</span>   -&gt;    <span class="number">26</span> x  <span class="number">26</span> x <span class="number">512</span>  <span class="number">1.595</span> BFL                                                                                                                                      OPs</span><br><span class="line">   <span class="number">49</span> res   <span class="number">46</span>                  <span class="number">26</span> x  <span class="number">26</span> x <span class="number">512</span>   -&gt;    <span class="number">26</span> x  <span class="number">26</span> x <span class="number">512</span></span><br><span class="line">   <span class="number">50</span> conv    <span class="number">256</span>  <span class="number">1</span> x <span class="number">1</span> / <span class="number">1</span>    <span class="number">26</span> x  <span class="number">26</span> x <span class="number">512</span>   -&gt;    <span class="number">26</span> x  <span class="number">26</span> x <span class="number">256</span>  <span class="number">0.177</span> BFL                                                                                                                                      OPs</span><br><span class="line">   <span class="number">51</span> conv    <span class="number">512</span>  <span class="number">3</span> x <span class="number">3</span> / <span class="number">1</span>    <span class="number">26</span> x  <span class="number">26</span> x <span class="number">256</span>   -&gt;    <span class="number">26</span> x  <span class="number">26</span> x <span class="number">512</span>  <span class="number">1.595</span> BFL                                                                                                                                      OPs</span><br><span class="line">   <span class="number">52</span> res   <span class="number">49</span>                  <span class="number">26</span> x  <span class="number">26</span> x <span class="number">512</span>   -&gt;    <span class="number">26</span> x  <span class="number">26</span> x <span class="number">512</span></span><br><span class="line">   <span class="number">53</span> conv    <span class="number">256</span>  <span class="number">1</span> x <span class="number">1</span> / <span class="number">1</span>    <span class="number">26</span> x  <span class="number">26</span> x <span class="number">512</span>   -&gt;    <span class="number">26</span> x  <span class="number">26</span> x <span class="number">256</span>  <span class="number">0.177</span> BFL                                                                                                                                      OPs</span><br><span class="line">   <span class="number">54</span> conv    <span class="number">512</span>  <span class="number">3</span> x <span class="number">3</span> / <span class="number">1</span>    <span class="number">26</span> x  <span class="number">26</span> x <span class="number">256</span>   -&gt;    <span class="number">26</span> x  <span class="number">26</span> x <span class="number">512</span>  <span class="number">1.595</span> BFL                                                                                                                                      OPs</span><br><span class="line">   <span class="number">55</span> res   <span class="number">52</span>                  <span class="number">26</span> x  <span class="number">26</span> x <span class="number">512</span>   -&gt;    <span class="number">26</span> x  <span class="number">26</span> x <span class="number">512</span></span><br><span class="line">   <span class="number">56</span> conv    <span class="number">256</span>  <span class="number">1</span> x <span class="number">1</span> / <span class="number">1</span>    <span class="number">26</span> x  <span class="number">26</span> x <span class="number">512</span>   -&gt;    <span class="number">26</span> x  <span class="number">26</span> x <span class="number">256</span>  <span class="number">0.177</span> BFL                                                                                                                                      OPs</span><br><span class="line">   <span class="number">57</span> conv    <span class="number">512</span>  <span class="number">3</span> x <span class="number">3</span> / <span class="number">1</span>    <span class="number">26</span> x  <span class="number">26</span> x <span class="number">256</span>   -&gt;    <span class="number">26</span> x  <span class="number">26</span> x <span class="number">512</span>  <span class="number">1.595</span> BFL                                                                                                                                      OPs</span><br><span class="line">   <span class="number">58</span> res   <span class="number">55</span>                  <span class="number">26</span> x  <span class="number">26</span> x <span class="number">512</span>   -&gt;    <span class="number">26</span> x  <span class="number">26</span> x <span class="number">512</span></span><br><span class="line">   <span class="number">59</span> conv    <span class="number">256</span>  <span class="number">1</span> x <span class="number">1</span> / <span class="number">1</span>    <span class="number">26</span> x  <span class="number">26</span> x <span class="number">512</span>   -&gt;    <span class="number">26</span> x  <span class="number">26</span> x <span class="number">256</span>  <span class="number">0.177</span> BFL                                                                                                                                      OPs</span><br><span class="line">   <span class="number">60</span> conv    <span class="number">512</span>  <span class="number">3</span> x <span class="number">3</span> / <span class="number">1</span>    <span class="number">26</span> x  <span class="number">26</span> x <span class="number">256</span>   -&gt;    <span class="number">26</span> x  <span class="number">26</span> x <span class="number">512</span>  <span class="number">1.595</span> BFL                                                                                                                                      OPs</span><br><span class="line">   <span class="number">61</span> res   <span class="number">58</span>                  <span class="number">26</span> x  <span class="number">26</span> x <span class="number">512</span>   -&gt;    <span class="number">26</span> x  <span class="number">26</span> x <span class="number">512</span></span><br><span class="line">   <span class="number">62</span> conv   <span class="number">1024</span>  <span class="number">3</span> x <span class="number">3</span> / <span class="number">2</span>    <span class="number">26</span> x  <span class="number">26</span> x <span class="number">512</span>   -&gt;    <span class="number">13</span> x  <span class="number">13</span> x1024  <span class="number">1.595</span> BFL                                                                                                                                      OPs</span><br><span class="line">   <span class="number">63</span> conv    <span class="number">512</span>  <span class="number">1</span> x <span class="number">1</span> / <span class="number">1</span>    <span class="number">13</span> x  <span class="number">13</span> x1024   -&gt;    <span class="number">13</span> x  <span class="number">13</span> x <span class="number">512</span>  <span class="number">0.177</span> BFL                                                                                                                                      OPs</span><br><span class="line">   <span class="number">64</span> conv   <span class="number">1024</span>  <span class="number">3</span> x <span class="number">3</span> / <span class="number">1</span>    <span class="number">13</span> x  <span class="number">13</span> x <span class="number">512</span>   -&gt;    <span class="number">13</span> x  <span class="number">13</span> x1024  <span class="number">1.595</span> BFL                                                                                                                                      OPs</span><br><span class="line">   <span class="number">65</span> res   <span class="number">62</span>                  <span class="number">13</span> x  <span class="number">13</span> x1024   -&gt;    <span class="number">13</span> x  <span class="number">13</span> x1024</span><br><span class="line">   <span class="number">66</span> conv    <span class="number">512</span>  <span class="number">1</span> x <span class="number">1</span> / <span class="number">1</span>    <span class="number">13</span> x  <span class="number">13</span> x1024   -&gt;    <span class="number">13</span> x  <span class="number">13</span> x <span class="number">512</span>  <span class="number">0.177</span> BFL                                                                                                                                      OPs</span><br><span class="line">   <span class="number">67</span> conv   <span class="number">1024</span>  <span class="number">3</span> x <span class="number">3</span> / <span class="number">1</span>    <span class="number">13</span> x  <span class="number">13</span> x <span class="number">512</span>   -&gt;    <span class="number">13</span> x  <span class="number">13</span> x1024  <span class="number">1.595</span> BFLOPs</span><br><span class="line">   <span class="number">68</span> res   <span class="number">65</span>                  <span class="number">13</span> x  <span class="number">13</span> x1024   -&gt;    <span class="number">13</span> x  <span class="number">13</span> x1024</span><br><span class="line">   <span class="number">69</span> conv    <span class="number">512</span>  <span class="number">1</span> x <span class="number">1</span> / <span class="number">1</span>    <span class="number">13</span> x  <span class="number">13</span> x1024   -&gt;    <span class="number">13</span> x  <span class="number">13</span> x <span class="number">512</span>  <span class="number">0.177</span> BFLOPs</span><br><span class="line">   <span class="number">70</span> conv   <span class="number">1024</span>  <span class="number">3</span> x <span class="number">3</span> / <span class="number">1</span>    <span class="number">13</span> x  <span class="number">13</span> x <span class="number">512</span>   -&gt;    <span class="number">13</span> x  <span class="number">13</span> x1024  <span class="number">1.595</span> BFLOPs</span><br><span class="line">   <span class="number">71</span> res   <span class="number">68</span>                  <span class="number">13</span> x  <span class="number">13</span> x1024   -&gt;    <span class="number">13</span> x  <span class="number">13</span> x1024</span><br><span class="line">   <span class="number">72</span> conv    <span class="number">512</span>  <span class="number">1</span> x <span class="number">1</span> / <span class="number">1</span>    <span class="number">13</span> x  <span class="number">13</span> x1024   -&gt;    <span class="number">13</span> x  <span class="number">13</span> x <span class="number">512</span>  <span class="number">0.177</span> BFLOPs</span><br><span class="line">   <span class="number">73</span> conv   <span class="number">1024</span>  <span class="number">3</span> x <span class="number">3</span> / <span class="number">1</span>    <span class="number">13</span> x  <span class="number">13</span> x <span class="number">512</span>   -&gt;    <span class="number">13</span> x  <span class="number">13</span> x1024  <span class="number">1.595</span> BFLOPs</span><br><span class="line">   <span class="number">74</span> res   <span class="number">71</span>                  <span class="number">13</span> x  <span class="number">13</span> x1024   -&gt;    <span class="number">13</span> x  <span class="number">13</span> x1024</span><br><span class="line">   <span class="number">75</span> conv    <span class="number">512</span>  <span class="number">1</span> x <span class="number">1</span> / <span class="number">1</span>    <span class="number">13</span> x  <span class="number">13</span> x1024   -&gt;    <span class="number">13</span> x  <span class="number">13</span> x <span class="number">512</span>  <span class="number">0.177</span> BFLOPs</span><br><span class="line">   <span class="number">76</span> conv   <span class="number">1024</span>  <span class="number">3</span> x <span class="number">3</span> / <span class="number">1</span>    <span class="number">13</span> x  <span class="number">13</span> x <span class="number">512</span>   -&gt;    <span class="number">13</span> x  <span class="number">13</span> x1024  <span class="number">1.595</span> BFLOPs</span><br><span class="line">   <span class="number">77</span> conv    <span class="number">512</span>  <span class="number">1</span> x <span class="number">1</span> / <span class="number">1</span>    <span class="number">13</span> x  <span class="number">13</span> x1024   -&gt;    <span class="number">13</span> x  <span class="number">13</span> x <span class="number">512</span>  <span class="number">0.177</span> BFLOPs</span><br><span class="line">   <span class="number">78</span> conv   <span class="number">1024</span>  <span class="number">3</span> x <span class="number">3</span> / <span class="number">1</span>    <span class="number">13</span> x  <span class="number">13</span> x <span class="number">512</span>   -&gt;    <span class="number">13</span> x  <span class="number">13</span> x1024  <span class="number">1.595</span> BFLOPs</span><br><span class="line">   <span class="number">79</span> conv    <span class="number">512</span>  <span class="number">1</span> x <span class="number">1</span> / <span class="number">1</span>    <span class="number">13</span> x  <span class="number">13</span> x1024   -&gt;    <span class="number">13</span> x  <span class="number">13</span> x <span class="number">512</span>  <span class="number">0.177</span> BFLOPs</span><br><span class="line">   <span class="number">80</span> conv   <span class="number">1024</span>  <span class="number">3</span> x <span class="number">3</span> / <span class="number">1</span>    <span class="number">13</span> x  <span class="number">13</span> x <span class="number">512</span>   -&gt;    <span class="number">13</span> x  <span class="number">13</span> x1024  <span class="number">1.595</span> BFLOPs</span><br><span class="line">   <span class="number">81</span> conv    <span class="number">255</span>  <span class="number">1</span> x <span class="number">1</span> / <span class="number">1</span>    <span class="number">13</span> x  <span class="number">13</span> x1024   -&gt;    <span class="number">13</span> x  <span class="number">13</span> x <span class="number">255</span>  <span class="number">0.088</span> BFLOPs</span><br><span class="line">   <span class="number">82</span> detection # <span class="number">75</span>~<span class="number">81</span>行是尺度<span class="number">1</span>的预测，对<span class="number">13</span>X13X1024的feature，使用<span class="number">255</span>（<span class="number">3</span>x(<span class="number">4</span>+<span class="number">1</span>+<span class="number">80</span>)）个卷积核对每个位置去做预测</span><br><span class="line">   <span class="number">83</span> route  <span class="number">79</span> #取<span class="number">79</span>行卷积对应的feature map <span class="number">13</span> x  <span class="number">13</span> x <span class="number">512</span></span><br><span class="line">   <span class="number">84</span> conv    <span class="number">256</span>  <span class="number">1</span> x <span class="number">1</span> / <span class="number">1</span>    <span class="number">13</span> x  <span class="number">13</span> x <span class="number">512</span>   -&gt;    <span class="number">13</span> x  <span class="number">13</span> x <span class="number">256</span>  <span class="number">0.044</span> BFLOPs</span><br><span class="line">   <span class="number">85</span> upsample            <span class="number">2</span>x    <span class="number">13</span> x  <span class="number">13</span> x <span class="number">256</span>   -&gt;    <span class="number">26</span> x  <span class="number">26</span> x <span class="number">256</span></span><br><span class="line">   <span class="number">86</span> route  <span class="number">85</span> <span class="number">61</span> #取<span class="number">85</span>和<span class="number">61</span>行的feature map做拼接得到下面 <span class="number">26</span> x  <span class="number">26</span> x <span class="number">768</span>的feature map</span><br><span class="line">   <span class="number">87</span> conv    <span class="number">256</span>  <span class="number">1</span> x <span class="number">1</span> / <span class="number">1</span>    <span class="number">26</span> x  <span class="number">26</span> x <span class="number">768</span>   -&gt;    <span class="number">26</span> x  <span class="number">26</span> x <span class="number">256</span>  <span class="number">0.266</span> BFLOPs</span><br><span class="line">   <span class="number">88</span> conv    <span class="number">512</span>  <span class="number">3</span> x <span class="number">3</span> / <span class="number">1</span>    <span class="number">26</span> x  <span class="number">26</span> x <span class="number">256</span>   -&gt;    <span class="number">26</span> x  <span class="number">26</span> x <span class="number">512</span>  <span class="number">1.595</span> BFLOPs</span><br><span class="line">   <span class="number">89</span> conv    <span class="number">256</span>  <span class="number">1</span> x <span class="number">1</span> / <span class="number">1</span>    <span class="number">26</span> x  <span class="number">26</span> x <span class="number">512</span>   -&gt;    <span class="number">26</span> x  <span class="number">26</span> x <span class="number">256</span>  <span class="number">0.177</span> BFLOPs</span><br><span class="line">   <span class="number">90</span> conv    <span class="number">512</span>  <span class="number">3</span> x <span class="number">3</span> / <span class="number">1</span>    <span class="number">26</span> x  <span class="number">26</span> x <span class="number">256</span>   -&gt;    <span class="number">26</span> x  <span class="number">26</span> x <span class="number">512</span>  <span class="number">1.595</span> BFLOPs</span><br><span class="line">   <span class="number">91</span> conv    <span class="number">256</span>  <span class="number">1</span> x <span class="number">1</span> / <span class="number">1</span>    <span class="number">26</span> x  <span class="number">26</span> x <span class="number">512</span>   -&gt;    <span class="number">26</span> x  <span class="number">26</span> x <span class="number">256</span>  <span class="number">0.177</span> BFLOPs</span><br><span class="line">   <span class="number">92</span> conv    <span class="number">512</span>  <span class="number">3</span> x <span class="number">3</span> / <span class="number">1</span>    <span class="number">26</span> x  <span class="number">26</span> x <span class="number">256</span>   -&gt;    <span class="number">26</span> x  <span class="number">26</span> x <span class="number">512</span>  <span class="number">1.595</span> BFLOPs</span><br><span class="line">   <span class="number">93</span> conv    <span class="number">255</span>  <span class="number">1</span> x <span class="number">1</span> / <span class="number">1</span>    <span class="number">26</span> x  <span class="number">26</span> x <span class="number">512</span>   -&gt;    <span class="number">26</span> x  <span class="number">26</span> x <span class="number">255</span>  <span class="number">0.177</span> BFLOPs</span><br><span class="line">   <span class="number">94</span> detection #尺度<span class="number">2</span>的预测是在尺度<span class="number">1</span>的feature map基础上做的</span><br><span class="line">   <span class="number">95</span> route  <span class="number">91</span></span><br><span class="line">   <span class="number">96</span> conv    <span class="number">128</span>  <span class="number">1</span> x <span class="number">1</span> / <span class="number">1</span>    <span class="number">26</span> x  <span class="number">26</span> x <span class="number">256</span>   -&gt;    <span class="number">26</span> x  <span class="number">26</span> x <span class="number">128</span>  <span class="number">0.044</span> BFLOPs</span><br><span class="line">   <span class="number">97</span> upsample            <span class="number">2</span>x    <span class="number">26</span> x  <span class="number">26</span> x <span class="number">128</span>   -&gt;    <span class="number">52</span> x  <span class="number">52</span> x <span class="number">128</span></span><br><span class="line">   <span class="number">98</span> route  <span class="number">97</span> <span class="number">36</span></span><br><span class="line">   <span class="number">99</span> conv    <span class="number">128</span>  <span class="number">1</span> x <span class="number">1</span> / <span class="number">1</span>    <span class="number">52</span> x  <span class="number">52</span> x <span class="number">384</span>   -&gt;    <span class="number">52</span> x  <span class="number">52</span> x <span class="number">128</span>  <span class="number">0.266</span> BFLOPs</span><br><span class="line">  <span class="number">100</span> conv    <span class="number">256</span>  <span class="number">3</span> x <span class="number">3</span> / <span class="number">1</span>    <span class="number">52</span> x  <span class="number">52</span> x <span class="number">128</span>   -&gt;    <span class="number">52</span> x  <span class="number">52</span> x <span class="number">256</span>  <span class="number">1.595</span> BFLOPs</span><br><span class="line">  <span class="number">101</span> conv    <span class="number">128</span>  <span class="number">1</span> x <span class="number">1</span> / <span class="number">1</span>    <span class="number">52</span> x  <span class="number">52</span> x <span class="number">256</span>   -&gt;    <span class="number">52</span> x  <span class="number">52</span> x <span class="number">128</span>  <span class="number">0.177</span> BFLOPs</span><br><span class="line">  <span class="number">102</span> conv    <span class="number">256</span>  <span class="number">3</span> x <span class="number">3</span> / <span class="number">1</span>    <span class="number">52</span> x  <span class="number">52</span> x <span class="number">128</span>   -&gt;    <span class="number">52</span> x  <span class="number">52</span> x <span class="number">256</span>  <span class="number">1.595</span> BFLOPs</span><br><span class="line">  <span class="number">103</span> conv    <span class="number">128</span>  <span class="number">1</span> x <span class="number">1</span> / <span class="number">1</span>    <span class="number">52</span> x  <span class="number">52</span> x <span class="number">256</span>   -&gt;    <span class="number">52</span> x  <span class="number">52</span> x <span class="number">128</span>  <span class="number">0.177</span> BFLOPs</span><br><span class="line">  <span class="number">104</span> conv    <span class="number">256</span>  <span class="number">3</span> x <span class="number">3</span> / <span class="number">1</span>    <span class="number">52</span> x  <span class="number">52</span> x <span class="number">128</span>   -&gt;    <span class="number">52</span> x  <span class="number">52</span> x <span class="number">256</span>  <span class="number">1.595</span> BFLOPs</span><br><span class="line">  <span class="number">105</span> conv    <span class="number">255</span>  <span class="number">1</span> x <span class="number">1</span> / <span class="number">1</span>    <span class="number">52</span> x  <span class="number">52</span> x <span class="number">256</span>   -&gt;    <span class="number">52</span> x  <span class="number">52</span> x <span class="number">255</span>  <span class="number">0.353</span> BFLOPs</span><br><span class="line">  <span class="number">106</span> detection #尺度<span class="number">3</span>的预测是在尺度<span class="number">2</span>的feature map基础上做的</span><br></pre></td></tr></table></figure>
+<center><img src="/images/YOLOv3/network.png" width="80%"></center>
+
+<p>YOLOv3检测网络输入为416x416，5倍下采样后，最后一层卷积的输出是13x13。<strong>使用了一种与特征金字塔网络（FPN）相似的概念，YOLOv3在3个不同的尺度进行预测</strong>：</p>
+<ul>
+<li>尺度1：在基础的特征提取网络上添加了几个卷积层，在<strong>最后一个卷积层输出的13x13的feature map</strong>上预测一个3-d的tensor编码bounding box，目标和类别的预测。实验中，对于COCO数据集，每一个尺度预测3个box，所以tensor的尺寸就是NxNx[3x(4+1+80)]，feature map大小为NxN，每个box有4个坐标，1个目标分数，80个类别分数。</li>
+<li>尺度2：提取<strong>尺度1的13x13的feature map，上采样2倍；然后在网络的浅层中取一个26x26的feature map，并把它与上采样后的feature map进行拼接</strong>（concatenation）。这个方法能够获得上采样的feature map上更加有意义的语义信息和浅层feature map上细粒度（finer-grained）的信息。添加几个卷积层去处理这个组合后的26x26x768的feature map，最终预测一个相似的tensor，但比尺度1大2倍。</li>
+<li>尺度3：<strong>在尺度2的26x26的feature map基础上，上采样2倍得到52x52的feature map；取浅层的52x52的feature map做拼接</strong>，在组合后的52x52的feature map上做预测。</li>
+</ul>
+<p>使用K-means聚类，只选择了9个聚类和3个尺度，然后按照聚类中心的大小平均划分3种尺度，最后3个尺度对应于尺度1的预测，以此类推。在COCO数据集上，9个聚类中心为：(10x13)，(16x30)，(33x23)，(30x61)，(62x45)，(59x119)，(116x90)，(156x198)，(373x326)。</p>
+<h2 id="特征提取"><a href="#特征提取" class="headerlink" title="特征提取"></a>特征提取</h2><p>设计了一种新的特征提取网络，这个网络是YOLOv2中<strong>Darknet-19和残差网络的混合</strong>。特征提取网络连续使用3x3和1x1卷积层，但是加入了快捷连接（shortcut connection），所以明显更大一些。因为有53个卷积层，因此称其为DarkNet-53。精确率比ResNet-101更好，与ResNet-152相当，但是更高效。</p>
+<center><img src="/images/YOLOv3/Darknet-53.png" width="40%"></center>
+
+<h2 id="训练"><a href="#训练" class="headerlink" title="训练"></a>训练</h2><p>在完整的图像上训练，没有使用难负样本挖掘或者其他操作。使用多尺度训练，数据增强，批量归一化。</p>
+<h1 id="How-We-Do"><a href="#How-We-Do" class="headerlink" title="How We Do"></a>How We Do</h1><p>在COCO数据集的mAP度量标准下，YOLOv3与SSD的变体DSSD相当，但仍然落后于RetinaNet，但速度更快。但是在旧的度量标准下，即IoU为0.5时的mAP，YOLOv3与RetinaNet相当，远超DSSD。但是当IoU增加时，YOLOv3的性能明显降低，说明YOLOv3其实是在努力获得与目标对齐的box。</p>
+<center><img src="/images/YOLOv3/table.png" width="90%"></center>
+
+<p>过去，YOLO在尽力解决小目标问题，现在这一情况有了逆转。<strong>当使用多标签预测时，可以看到YOLOv3，在小目标上有着相对高的AP值（APs），然而在中等和大目标上性能相对较差</strong>。</p>
+<h1 id="Things-We-Tried-That-Didn’t-Work"><a href="#Things-We-Tried-That-Didn’t-Work" class="headerlink" title="Things We Tried That Didn’t Work"></a>Things We Tried That Didn’t Work</h1><ul>
+<li>anchor box偏移量预测：降低了模型的稳定性</li>
+<li>使用线性激活取代逻辑回归激活函数直接预测x，y偏移量：mAP下降了几个点</li>
+<li>Focal loss：降低了2个点的mAP，可能是因为YOLOv3对Focal loss尽力解决的问题已经足够鲁棒。因为YOLOv3有独立的目标分数预测和条件类概率预测。</li>
+<li>双IoU阈值和：Faster R-CNN在训练中使用了2个IoU阈值，anchor box与ground truth的IoU超过0.7的也作为正样本，而[0.3,0.7]的被忽略掉。小于0.3的作为负样本。尝试在YOLOv3中这样做，但是结果并不好。</li>
+</ul>
+<h1 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h1><ol>
+<li><a href="https://pjreddie.com/media/files/papers/YOLOv3.pdf" target="_blank" rel="noopener">论文原文</a></li>
+<li><a href="https://blog.csdn.net/l7H9JA4/article/details/79955903" target="_blank" rel="noopener">目标检测|YOLOv2原理与实现(附YOLOv3)</a></li>
+<li><a href="https://pjreddie.com/darknet/yolo/" target="_blank" rel="noopener">YOLOv3项目主页</a></li>
+</ol>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/object-detection/" rel="tag"># object detection</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/05/02/YOLOv2/" rel="next" title="YOLO9000:Better, Faster, Stronger">
+                <i class="fa fa-chevron-left"></i> YOLO9000:Better, Faster, Stronger
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/05/06/FPN/" rel="prev" title="Feature Pyramid Networks for Object Detection">
+                Feature Pyramid Networks for Object Detection <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/cat.jpg"
+                alt="Ting Zhang" />
+            
+              <p class="site-author-name" itemprop="name">Ting Zhang</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">10</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">2</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">6</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/zhangting2020" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:zhangting_2017@163.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#The-Deal"><span class="nav-number">1.</span> <span class="nav-text">The Deal</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Bounding-Box-预测"><span class="nav-number">1.1.</span> <span class="nav-text">Bounding Box 预测</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#类别预测"><span class="nav-number">1.2.</span> <span class="nav-text">类别预测</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#多尺度预测"><span class="nav-number">1.3.</span> <span class="nav-text">多尺度预测</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#特征提取"><span class="nav-number">1.4.</span> <span class="nav-text">特征提取</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#训练"><span class="nav-number">1.5.</span> <span class="nav-text">训练</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#How-We-Do"><span class="nav-number">2.</span> <span class="nav-text">How We Do</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Things-We-Tried-That-Didn’t-Work"><span class="nav-number">3.</span> <span class="nav-text">Things We Tried That Didn’t Work</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Reference"><span class="nav-number">4.</span> <span class="nav-text">Reference</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Ting Zhang</span>
+
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+          <span id="scrollpercent"><span>0</span>%</span>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+  
+</body>
+</html>

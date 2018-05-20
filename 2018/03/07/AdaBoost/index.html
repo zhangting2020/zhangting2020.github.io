@@ -1,0 +1,1214 @@
+<!DOCTYPE html>
+
+
+
+
+<html class="theme-next gemini" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="object detection,face detection," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="这篇文章是人脸检测的经典，提出一种基于机器学习的视觉目标检测方法，主要有三点贡献：第一，引入“积分图”概念，可以被检测器用来快速计算特征。第二，学习算法基于AdaBoost，可以从很大的集合中筛选出少量的关键视觉特征并形成更加高效的分类器。第三，以“级联”形式逐渐合并复杂分类器的方法，该方法使得图像的背景区域被很快丢弃，从而将更多的计算放在可能是目标的区域上。">
+<meta name="keywords" content="object detection,face detection">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Rapid Object Detection using a Boosted Cascade of Simple Features">
+<meta property="og:url" content="http://yoursite.com/2018/03/07/AdaBoost/index.html">
+<meta property="og:site_name" content="Tina&#39;s Blog">
+<meta property="og:description" content="这篇文章是人脸检测的经典，提出一种基于机器学习的视觉目标检测方法，主要有三点贡献：第一，引入“积分图”概念，可以被检测器用来快速计算特征。第二，学习算法基于AdaBoost，可以从很大的集合中筛选出少量的关键视觉特征并形成更加高效的分类器。第三，以“级联”形式逐渐合并复杂分类器的方法，该方法使得图像的背景区域被很快丢弃，从而将更多的计算放在可能是目标的区域上。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://yoursite.com/images/AdaBoost/Features.png">
+<meta property="og:image" content="http://yoursite.com/images/AdaBoost/Eq1.png">
+<meta property="og:image" content="http://yoursite.com/images/AdaBoost/Eq2.png">
+<meta property="og:image" content="http://yoursite.com/images/AdaBoost/RecD.png">
+<meta property="og:image" content="http://yoursite.com/images/AdaBoost/Eq3.png">
+<meta property="og:image" content="http://yoursite.com/images/AdaBoost/AdaBoost.png">
+<meta property="og:image" content="http://yoursite.com/images/AdaBoost/Face.png">
+<meta property="og:image" content="http://yoursite.com/images/AdaBoost/Cascade.png">
+<meta property="og:updated_time" content="2018-05-20T08:19:09.671Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Rapid Object Detection using a Boosted Cascade of Simple Features">
+<meta name="twitter:description" content="这篇文章是人脸检测的经典，提出一种基于机器学习的视觉目标检测方法，主要有三点贡献：第一，引入“积分图”概念，可以被检测器用来快速计算特征。第二，学习算法基于AdaBoost，可以从很大的集合中筛选出少量的关键视觉特征并形成更加高效的分类器。第三，以“级联”形式逐渐合并复杂分类器的方法，该方法使得图像的背景区域被很快丢弃，从而将更多的计算放在可能是目标的区域上。">
+<meta name="twitter:image" content="http://yoursite.com/images/AdaBoost/Features.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":true,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/03/07/AdaBoost/"/>
+
+
+
+
+
+  <title>Rapid Object Detection using a Boosted Cascade of Simple Features | Tina's Blog</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Tina's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/03/07/AdaBoost/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Ting Zhang">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/cat.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Tina's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Rapid Object Detection using a Boosted Cascade of Simple Features</h1>
+        
+
+        <div class="post-meta">
+          
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-03-07T15:19:51+08:00">
+                2018-03-07
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Machine-Learning/" itemprop="url" rel="index">
+                    <span itemprop="name">Machine Learning</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                  <span class="post-meta-divider">|</span>
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  2,442
+                </span>
+              
+
+              
+
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <blockquote>
+<p>这篇文章是人脸检测的经典，提出一种基于机器学习的视觉目标检测方法，主要有三点贡献：第一，引入“积分图”概念，可以被检测器用来快速计算特征。第二，学习算法基于<code>AdaBoost</code>，可以从很大的集合中筛选出少量的关键视觉特征并形成更加高效的分类器。第三，以“级联”形式逐渐合并复杂分类器的方法，该方法使得图像的背景区域被很快丢弃，从而将更多的计算放在可能是目标的区域上。<br><a id="more"></a></p>
+</blockquote>
+<h1 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h1><p>本文建立了一个正面的人脸检测系统，常规<code>700 MHz</code>英特尔奔腾<code>III</code>，人脸检测速度达到了每秒<code>15</code>帧。其他的人脸检测系统提高帧率是利用视频序列中的图像差异，或者彩色图像中像素的颜色，本文的系统仅仅利用灰度图像信息就实现了高帧率。</p>
+<p><strong>三点贡献：</strong></p>
+<ul>
+<li>提出积分图，快速地计算特征。在一幅图像中，每个像素使用很少的一些操作，就可以计算得到积分图。任何一个<code>Haar-like</code>特征可以在任何尺度或位置上被计算出来，且是在固定时间内。</li>
+<li>提出了一种通过<code>AdaBoost</code>选择少量重要特征的方法。在任何的图像子窗口中，<code>Haar-like</code>特征数量是非常大的，通常远大于像素数量。为了获得快速的分类，学习算法必须排除掉获取的特征中的大部分，关注少量关键特征。通过对<code>AdaBoost</code>程序简单修改：约束弱学习器，使得返回的弱分类器只依赖于一个简单特征。因此，<code>boosting</code>过程的每一个阶段，选择一个新的弱分类器，这些阶段可以被视为特征选择过程。</li>
+<li>提出了一种以级联的方式逐渐合并更加复杂的分类器的方法，通过关注图像中那些更有希望的区域，这大大地提高了检测速度。</li>
+</ul>
+<p>这些没有被最初的分类器排除的子窗口，由接下来的一系列分类器处理，每个分类器都比其前一个更复杂。如果一个子窗口被任何分类器拒绝了，则它就不再被进一步处理。</p>
+<h1 id="Features"><a href="#Features" class="headerlink" title="Features"></a>Features</h1><p>使用三种特征：</p>
+<ul>
+<li>双矩形特征：其值定义为两个矩形区域里像素和的差。这两个区域有着相同的尺寸和形状，并且水平或垂直连接。如图<code>A</code>和<code>B</code>。</li>
+<li>三矩形特征：其值定义为两个外矩形像素和减去中间矩形像素和。如图<code>C</code>。</li>
+<li>四矩形特征：其值定义为对角线上的矩形对的差。如图<code>D</code>。<center><img src="/images/AdaBoost/Features.png" width="50%"></center>
+
+</li>
+</ul>
+<h2 id="Integral-Image"><a href="#Integral-Image" class="headerlink" title="Integral Image"></a>Integral Image</h2><p>积分图：某个位置上的左边和上边的像素点的和。位置<code>(x,y)</code>上的积分图像包含点<code>(x,y)</code>上边和左边的像素和。如下式，<code>ii(i,y)</code>是<code>(x,y)</code>位置的积分图，<code>i(x,y)</code>是原始图像的像素值。</p>
+<center><img src="/images/AdaBoost/Eq1.png" width="30%"></center>
+
+<p>使用下面的两个式子迭代，其中<code>s</code>是累计行和，<code>s(x,-1)=0</code>，<code>ii(-1,y)=0</code>：</p>
+<center><img src="/images/AdaBoost/Eq2.png" width="45%"></center>
+
+<p>使用积分图像可以把任意一个矩形用四个数组引用计算，例如下图中的<code>D</code>，位置<code>1</code>上的积分图的值是矩形<code>A</code>的像素和，位置<code>2</code>上积分图的值是<code>A+B</code>，位置<code>3</code>则是<code>A+C</code>，位置<code>4</code>是<code>A+B+C+D</code>，矩形<code>D</code>的和可以计算为：<code>4+1-(2+3)</code>：</p>
+<center><img src="/images/AdaBoost/RecD.png" width="40%"></center>
+
+<p>由上图也可以看出，两个矩形像素和之间的差可以通过<code>8</code>个数组引用来计算。因为双矩形特征涉及到两个相邻矩形的和，所以仅用<code>6</code>个数组引用就可以计算出结果。同理三矩形特征用<code>8</code>个，四矩形特征用<code>9</code>个。</p>
+<h1 id="Learning-Classification-Functions"><a href="#Learning-Classification-Functions" class="headerlink" title="Learning Classification Functions"></a>Learning Classification Functions</h1><p>本文中，<code>AdaBoost</code>的一个变体被用于选择一个小集合的特征并且训练分类器。原始的<code>AdaBoost</code>学习算法被用于加强简单（弱）分类器的性能。每一个图像子窗口相关的特征超过<code>180000</code>，远超过像素的数量。而这些特征中只有一小部分可以被组合形成一个有效的分类器。所以主要的挑战是找到这小部分的特征。</p>
+<p>弱学习器用来选择能将正负样本最好的分离的单个特征。对于每一个特征，弱学习器确定最优的阈值分类函数，以使被误分类的样本数量最少。弱分类器<code>hj(x)</code>包括：特征<code>fj</code>，阈值<code>θj</code>，和一个正负校验<code>pj</code>，表示不等号的方向，<code>x</code>是<code>24×24</code>的图像子窗口。</p>
+<center><img src="/images/AdaBoost/Eq3.png" width="35%"></center>
+
+<p>学习算法如下：</p>
+<center><img src="/images/AdaBoost/AdaBoost.png" width="50%"></center>
+
+<h2 id="Learning-Result"><a href="#Learning-Result" class="headerlink" title="Learning Result"></a>Learning Result</h2><center><img src="/images/AdaBoost/Face.png" width="50%"></center>
+
+<p>对于人脸检测的任务，由<code>AdaBoost</code>选择的最初的矩形特征是有意义的且容易理解。选定的第一个特征的重点是眼睛区域往往比鼻子和脸颊区域更黑。此特征相对于检测子窗口较大，并且某种程度上不受面部大小和位置的影响。第二个特征选择依赖于眼睛的所在位置比鼻梁更暗</p>
+<h1 id="The-Attentional-Cascade"><a href="#The-Attentional-Cascade" class="headerlink" title="The Attentional Cascade"></a>The Attentional Cascade</h1><p>本章提出的构建级联分类器的算法，它能增加检测性能从而从根本上减少计算时间。主要观点是构建一种优化分类器，其规模越小就越高效。这种分类器在检测几乎所有的正样本时剔除许多负子窗口（即，优化分类器阈值可以调整使得<code>false negative</code>率接近零）。在调用较复杂的分类器之前，我们使用相对简单的分类器来剔除大多数子窗口，以实现低<code>false negative</code>率。</p>
+<p>在检测过程中，整体形式是一个退化决策树，称之为“级联”<code>(cascade)</code>。从第一个分类得到的有效结果能触发第二个分类器，它已经调整达到非常高的检测率。再得到一个有效结果使得第二个分类器触发第三个分类器，以此类推。在任何一个点的错误结果都导致子窗口立刻被剔除。</p>
+<p>级联阶段的构成首先是利用<code>AdaBoost</code>训练分类器，然后调整阈值使得<code>false negative</code>最大限度地减少。注意，默认<code>AdaBoost</code>的阈值旨在训练数据中产生低错误率。一般而言，一个较低的阈值会产生更高的检测速率和更高的<code>false positive</code>率。</p>
+<center><img src="/images/AdaBoost/Cascade.png" width="50%"></center>
+
+<p>一个双特征强分类器通过降低阈值，达到最小的<code>false negatives</code>后，可以构成一个优秀的第一阶段分类器。测量一个训练集时，阈值可以进行调整，最后达到<code>100%</code>的人脸检测率和<code>40%</code>的正误视率。</p>
+<h2 id="Training-a-Cascade-of-Classifiers"><a href="#Training-a-Cascade-of-Classifiers" class="headerlink" title="Training a Cascade of Classifiers"></a>Training a Cascade of Classifiers</h2><p>在实践中用一个非常简单的框架产生一个有效的高效分类器。级联中的每个阶段降低了<code>false negatives</code>并且减小了检测率。现在的目标旨在最小化<code>false negatives</code>和最大化检测率。调试每个阶段，不断增加特征，直到检测率和<code>false negatives</code>的目标实现（这些比率是通过将探测器在验证集上测试而得的）。同时添加阶段，直到总体目标的<code>false negatives</code>和检测率得到满足为止。</p>
+<h1 id="Result"><a href="#Result" class="headerlink" title="Result"></a>Result</h1><h2 id="Scanning-the-Detector"><a href="#Scanning-the-Detector" class="headerlink" title="Scanning the Detector"></a>Scanning the Detector</h2><p>最终的检测器在多个尺度和位置上扫描图像。尺度缩放是缩放检测器自身而不是缩放图像。这个过程有效是因为特征可以在任意尺度下被评估。使用<code>1.25</code>的间隔可以得到良好结果。</p>
+<p>检测器也在位置上扫描。后续位置的获得是通过将窗口平移<code>⊿</code>个像素获得的。这个平移过程受检测器的尺度影响：若当前尺度是<code>s</code>，窗口将移动<code>[s⊿]</code>，这里<code>[]</code>是指取整操作。<code>⊿</code>的选择不仅影响到检测器的速度还影响到检测精度。我们展示的结果是取了<code>⊿=1.0</code>。通过设定<code>⊿=1.5</code>，我们实现一个有意义的加速，而精度只有微弱降低。</p>
+<h2 id="Integration-of-Multiple-Detections"><a href="#Integration-of-Multiple-Detections" class="headerlink" title="Integration of Multiple Detections"></a>Integration of Multiple Detections</h2><p>因为最终检测器对于平移和尺度的微小改变是不敏感的，在扫描一幅图像时每个人脸通常会得到多检测结果，一些类型的<code>false positives</code>也是如此。在实际应用中每个人脸返回一个最终检测结果才显得比较有意义。</p>
+<p>在这些试验中，用非常简便的模式合并检测结果。首先把一系列检测分割成许多不相交的子集。若两个检测结果的边界区重叠了，那么它们就是相同子集的。每个不相交的集合产生单个最终检测结果。最后的边界区的角落定义为一个集合中所有检测结果的角落平均值</p>
+<h2 id="A-simple-voting-scheme-to-further-improve-results"><a href="#A-simple-voting-scheme-to-further-improve-results" class="headerlink" title="A simple voting scheme to further improve results"></a>A simple voting scheme to further improve results</h2><p>运行三个检测器的结果（一个本文描述的<code>38</code>层检测器加上两个类似的检测器），输出投票得票数高的结果。在提高检测率的同时也消除很多<code>false positives</code>率，且随检测器独立性增强而提高。由于它们的误差之间存在关联，所以对于最佳的单一检测器，检测率是有一个适度提高。</p>
+<h1 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h1><ol>
+<li><a href="https://ieeexplore.ieee.org/document/990517/?reload=true" target="_blank" rel="noopener">论文原文</a></li>
+<li><a href="http://blog.csdn.net/watkinsong/article/details/7631241" target="_blank" rel="noopener">AdaBoost中利用Haar特征进行人脸识别算法分析与总结</a></li>
+</ol>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/object-detection/" rel="tag"># object detection</a>
+          
+            <a href="/tags/face-detection/" rel="tag"># face detection</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/04/10/DeepID/" rel="prev" title="DeepID:Deep Learning Face Representation from Predicting 10,000 Classes">
+                DeepID:Deep Learning Face Representation from Predicting 10,000 Classes <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/cat.jpg"
+                alt="Ting Zhang" />
+            
+              <p class="site-author-name" itemprop="name">Ting Zhang</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">10</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">2</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">6</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/zhangting2020" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:zhangting_2017@163.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Introduction"><span class="nav-number">1.</span> <span class="nav-text">Introduction</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Features"><span class="nav-number">2.</span> <span class="nav-text">Features</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Integral-Image"><span class="nav-number">2.1.</span> <span class="nav-text">Integral Image</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Learning-Classification-Functions"><span class="nav-number">3.</span> <span class="nav-text">Learning Classification Functions</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Learning-Result"><span class="nav-number">3.1.</span> <span class="nav-text">Learning Result</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#The-Attentional-Cascade"><span class="nav-number">4.</span> <span class="nav-text">The Attentional Cascade</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Training-a-Cascade-of-Classifiers"><span class="nav-number">4.1.</span> <span class="nav-text">Training a Cascade of Classifiers</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Result"><span class="nav-number">5.</span> <span class="nav-text">Result</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Scanning-the-Detector"><span class="nav-number">5.1.</span> <span class="nav-text">Scanning the Detector</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Integration-of-Multiple-Detections"><span class="nav-number">5.2.</span> <span class="nav-text">Integration of Multiple Detections</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#A-simple-voting-scheme-to-further-improve-results"><span class="nav-number">5.3.</span> <span class="nav-text">A simple voting scheme to further improve results</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Reference"><span class="nav-number">6.</span> <span class="nav-text">Reference</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Ting Zhang</span>
+
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+          <span id="scrollpercent"><span>0</span>%</span>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+  
+</body>
+</html>

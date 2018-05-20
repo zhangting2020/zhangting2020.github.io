@@ -3,7 +3,7 @@
 
 
 
-<html class="theme-next pisces" lang="zh-Hans">
+<html class="theme-next gemini" lang="zh-Hans">
 <head>
   <meta charset="UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=edge" />
@@ -77,25 +77,25 @@
 
 
 
-<meta name="description" content="这篇论文发表在ICCV2017上，提出了一种概念简单，灵活且通用的目标实例分割框架，在检测出图像中目标的同时，生成每一个实例的掩码（mask）。对Faster R-CNN进行扩展，通过添加与已存在的bounding box回归平行的一个分支，预测目标掩码，因而称为Mask R-CNN。这种框架训练简单，容易应用到其他任务，比如目标检测，人体关键点检测。">
+<meta name="description" content="这篇论文提出了一种概念简单，灵活且通用的目标实例分割框架，在检测出图像中目标的同时，生成每一个实例的掩码（mask）。对Faster R-CNN进行扩展，通过添加与已存在的bounding box回归平行的一个分支，预测目标掩码，因而称为Mask R-CNN。这种框架训练简单，容易应用到其他任务，比如目标检测，人体关键点检测。">
 <meta name="keywords" content="object detection,instance segmentation">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Mask-R-CNN">
 <meta property="og:url" content="http://yoursite.com/2018/05/06/Mask-R-CNN/index.html">
 <meta property="og:site_name" content="Tina&#39;s Blog">
-<meta property="og:description" content="这篇论文发表在ICCV2017上，提出了一种概念简单，灵活且通用的目标实例分割框架，在检测出图像中目标的同时，生成每一个实例的掩码（mask）。对Faster R-CNN进行扩展，通过添加与已存在的bounding box回归平行的一个分支，预测目标掩码，因而称为Mask R-CNN。这种框架训练简单，容易应用到其他任务，比如目标检测，人体关键点检测。">
+<meta property="og:description" content="这篇论文提出了一种概念简单，灵活且通用的目标实例分割框架，在检测出图像中目标的同时，生成每一个实例的掩码（mask）。对Faster R-CNN进行扩展，通过添加与已存在的bounding box回归平行的一个分支，预测目标掩码，因而称为Mask R-CNN。这种框架训练简单，容易应用到其他任务，比如目标检测，人体关键点检测。">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="http://yoursite.com/images/Mask-R-CNN/framework.png">
 <meta property="og:image" content="http://yoursite.com/images/Mask-R-CNN/translation.png">
 <meta property="og:image" content="http://yoursite.com/images/Mask-R-CNN/RoIPool.png">
 <meta property="og:image" content="http://yoursite.com/images/Mask-R-CNN/RoIPooling.png">
 <meta property="og:image" content="http://yoursite.com/images/Mask-R-CNN/RoIAlign2.png">
-<meta property="og:image" content="http://yoursite.com/2018/05/06/Mask-R-CNN/img/RoIAlign.png">
+<meta property="og:image" content="http://yoursite.com/images/Mask-R-CNN/RoIAlign.png">
 <meta property="og:image" content="http://yoursite.com/images/Mask-R-CNN/network.png">
-<meta property="og:updated_time" content="2018-05-06T14:11:34.923Z">
+<meta property="og:updated_time" content="2018-05-20T06:41:10.024Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Mask-R-CNN">
-<meta name="twitter:description" content="这篇论文发表在ICCV2017上，提出了一种概念简单，灵活且通用的目标实例分割框架，在检测出图像中目标的同时，生成每一个实例的掩码（mask）。对Faster R-CNN进行扩展，通过添加与已存在的bounding box回归平行的一个分支，预测目标掩码，因而称为Mask R-CNN。这种框架训练简单，容易应用到其他任务，比如目标检测，人体关键点检测。">
+<meta name="twitter:description" content="这篇论文提出了一种概念简单，灵活且通用的目标实例分割框架，在检测出图像中目标的同时，生成每一个实例的掩码（mask）。对Faster R-CNN进行扩展，通过添加与已存在的bounding box回归平行的一个分支，预测目标掩码，因而称为Mask R-CNN。这种框架训练简单，容易应用到其他任务，比如目标检测，人体关键点检测。">
 <meta name="twitter:image" content="http://yoursite.com/images/Mask-R-CNN/framework.png">
 
 
@@ -104,7 +104,7 @@
   var NexT = window.NexT || {};
   var CONFIG = {
     root: '/',
-    scheme: 'Pisces',
+    scheme: 'Gemini',
     version: '5.1.4',
     sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":true,"onmobile":false},
     fancybox: true,
@@ -324,6 +324,7 @@
         
 
         <div class="post-meta">
+          
           <span class="post-time">
             
               <span class="post-meta-item-icon">
@@ -388,7 +389,7 @@
                   <span class="post-meta-item-text">字数统计&#58;</span>
                 
                 <span title="字数统计">
-                  2,027
+                  2,255
                 </span>
               
 
@@ -414,7 +415,7 @@
 
       
         <blockquote>
-<p>这篇论文发表在<code>ICCV2017</code>上，提出了一种概念简单，灵活且通用的目标实例分割框架，在检测出图像中目标的同时，生成每一个实例的掩码（<code>mask</code>）。对<code>Faster R-CNN</code>进行扩展，通过添加与已存在的<code>bounding box</code>回归平行的一个分支，预测目标掩码，因而称为<code>Mask R-CNN</code>。这种框架训练简单，容易应用到其他任务，比如目标检测，人体关键点检测。<br><a id="more"></a></p>
+<p>这篇论文提出了一种概念简单，灵活且通用的目标实例分割框架，在检测出图像中目标的同时，生成每一个实例的掩码（<code>mask</code>）。对<code>Faster R-CNN</code>进行扩展，通过添加与已存在的<code>bounding box</code>回归平行的一个分支，预测目标掩码，因而称为<code>Mask R-CNN</code>。这种框架训练简单，容易应用到其他任务，比如目标检测，人体关键点检测。<br><a id="more"></a></p>
 </blockquote>
 <h1 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h1><p>实例分割的挑战性在于要求正确地检测出图像中的所有目标，同时精确地分割每一个实例。这其中包含两点内容：</p>
 <ul>
@@ -456,13 +457,23 @@
 <p>总之，<code>Faster R-CNN</code>破坏了像素到像素之间的这种平移同变性。<code>RoI Align</code>就是要在<code>RoI</code>之前和之后保持这种平移同变性，避免对<code>RoI</code>边界和里面的网格做量化。如下图：</p>
 <ul>
 <li>针对输入的<code>feature map</code>找到对应的<code>RoI</code>，是通过$x/16$而不是像<code>Faster R-CNN</code>中$[x/16]$，$[\cdot]$代表舍入操作。所以可以看到第一幅图中<code>RoI</code>并没有落在整数的坐标上。</li>
-<li>对<code>RoI</code>划分为<code>2x2</code>的网格（根据输出要求），每个小的网格里采样<code>4</code>个点，使用双线性插值根据临近的网格点计算这<code>4</code>个点的值，最后再对每一个网格进行最大池化或平均池化得到最终<code>2x2</code>的输出。<center><img src="/images/Mask-R-CNN/RoIAlign2.png" width="60%"></center><br><center><img src="img/RoIAlign.png" width="90%"></center>
+<li>对<code>RoI</code>划分为<code>2x2</code>的网格（根据输出要求），每个小的网格里采样<code>4</code>个点，使用双线性插值根据临近的网格点计算这<code>4</code>个点的值，最后再对每一个网格进行最大池化或平均池化得到最终<code>2x2</code>的输出。<center><img src="/images/Mask-R-CNN/RoIAlign2.png" width="60%"></center><br><center><img src="/images/Mask-R-CNN/RoIAlign.png" width="90%"></center>
 
 </li>
 </ul>
-<h2 id="network"><a href="#network" class="headerlink" title="network"></a>network</h2><center><img src="/images/Mask-R-CNN/network.png" width="70%"></center>
+<h2 id="network"><a href="#network" class="headerlink" title="network"></a>network</h2><p>下图中，是两个不同的<code>network head</code>，左图是<code>ResNet C4</code>，右边是<code>FPN</code>主干，这两种结构上都添加了一个掩码分支，反卷积使用<code>2x2</code>的卷积核，<code>stride</code>为<code>2</code>；除了输出层是<code>1x1</code>的卷积，其他部分的卷积都是<code>3x3</code>的。</p>
+<center><img src="/images/Mask-R-CNN/network.png" width="70%"></center>
 
-
+<h2 id="实现细节"><a href="#实现细节" class="headerlink" title="实现细节"></a>实现细节</h2><ul>
+<li>掩码损失只定义在正的<code>RoI</code>上</li>
+<li>输入图像被缩放到短边为<code>800</code>，每个图像采样<code>N</code>个<code>RoI</code>（<code>ResNet</code>的<code>N=64</code>，<code>FPN</code>的<code>N=512</code>），<code>batch size = 2</code>，正负样本的比例为<code>1:3</code>。</li>
+<li>测试中对于<code>ResNet</code>架构，生成<code>300</code>个<code>proposal</code>，<code>FPN</code>则是<code>1000</code>。</li>
+<li>将得分最高的<code>100</code>个检测框输入掩码分支，对每一个<code>RoI</code>预测出<code>K</code>个掩码，但是最终只根据分类分支的预测结果选择相应的那一个类别的掩码。</li>
+<li><code>mxm</code>的浮点数掩码输出随后被缩放到<code>RoI</code>尺寸，然后以<code>0.5</code>的阈值进行二值化。</li>
+</ul>
+<h1 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h1><ol>
+<li><a href="https://arxiv.org/abs/1703.06870" target="_blank" rel="noopener">Mask R-cNN</a></li>
+</ol>
 
       
     </div>
@@ -504,6 +515,10 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/05/20/Mask-X-R-CNN/" rel="prev" title="Learning to Segment Every Thing">
+                Learning to Segment Every Thing <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>
@@ -584,7 +599,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">3</span>
+                  <span class="site-state-item-count">10</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -606,7 +621,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">5</span>
+                  <span class="site-state-item-count">6</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>
@@ -655,7 +670,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Introduction"><span class="nav-number">1.</span> <span class="nav-text">Introduction</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Related-Work"><span class="nav-number">2.</span> <span class="nav-text">Related Work</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Mask-R-CNN"><span class="nav-number">3.</span> <span class="nav-text">Mask R-CNN</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#损失函数"><span class="nav-number">3.1.</span> <span class="nav-text">损失函数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#掩码表达"><span class="nav-number">3.2.</span> <span class="nav-text">掩码表达</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#RoI-Align"><span class="nav-number">3.3.</span> <span class="nav-text">RoI Align</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#network"><span class="nav-number">3.4.</span> <span class="nav-text">network</span></a></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Introduction"><span class="nav-number">1.</span> <span class="nav-text">Introduction</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Related-Work"><span class="nav-number">2.</span> <span class="nav-text">Related Work</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Mask-R-CNN"><span class="nav-number">3.</span> <span class="nav-text">Mask R-CNN</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#损失函数"><span class="nav-number">3.1.</span> <span class="nav-text">损失函数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#掩码表达"><span class="nav-number">3.2.</span> <span class="nav-text">掩码表达</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#RoI-Align"><span class="nav-number">3.3.</span> <span class="nav-text">RoI Align</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#network"><span class="nav-number">3.4.</span> <span class="nav-text">network</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#实现细节"><span class="nav-number">3.5.</span> <span class="nav-text">实现细节</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Reference"><span class="nav-number">4.</span> <span class="nav-text">Reference</span></a></li></ol></div>
             
 
           </div>
