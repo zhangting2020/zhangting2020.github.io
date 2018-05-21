@@ -386,7 +386,7 @@
                   <span class="post-meta-item-text">字数统计&#58;</span>
                 
                 <span title="字数统计">
-                  1,577
+                  1,567
                 </span>
               
 
@@ -452,7 +452,7 @@
 <center><img src="/images/SPPNet/whole.png" width="70%"></center>
 
 <h1 id="Mapping-a-Window-to-Feature-Maps"><a href="#Mapping-a-Window-to-Feature-Maps" class="headerlink" title="Mapping a Window to Feature Maps"></a>Mapping a Window to Feature Maps</h1><p><code>SPP-Net</code>在提取完整图像的<code>feature map</code>后，要将候选框的位置映射到<code>feature map</code>中得到对应特征。候选框是在原始图像上得到的，而<code>feature maps</code>是经过原始图片卷积、下采样等一系列操作后得到的，所以<code>feature maps</code>的大小和原始图片的大小是不同的。</p>
-<p>假设$(x,y)$是原始图像上的坐标点，$(x’,y’)$是特征图上的坐标，<code>S</code>是<code>CNN</code>中所有的步长的乘积，那么左上角的点转换公式如下：$$x’ = \frac x S + 1$$<br>右下角的点转换公式为：$$x’ = \frac x S - 1$$</p>
+<p>假设$(x,y)$是原始图像上的坐标点，$(x’,y’)$是特征图上的坐标，<code>S</code>是<code>CNN</code>中所有的步长的乘积，那么左上角的点转换公式如下：<script type="math/tex">x' = \frac x S + 1</script><br>右下角的点转换公式为：<script type="math/tex">x' = \frac x S - 1</script></p>
 <h1 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h1><ol>
 <li><a href="https://arxiv.org/pdf/1406.4729.pdf" target="_blank" rel="noopener">论文原文</a></li>
 <li><a href="http://blog.csdn.net/xjz18298268521/article/details/52681966" target="_blank" rel="noopener">SPPnet论文总结</a></li>

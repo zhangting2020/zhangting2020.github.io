@@ -389,7 +389,7 @@
                   <span class="post-meta-item-text">字数统计&#58;</span>
                 
                 <span title="字数统计">
-                  2,662
+                  2,623
                 </span>
               
 
@@ -442,7 +442,9 @@
 <li>(a) 原始SSD的方法，直接在feature map上做预测</li>
 <li>(b) 带有跳跃连接的残差块</li>
 <li>(c) 相比于(b)把恒等映射换成了1x1卷积 </li>
-<li>(d) 两个连续的残差块<center><img src="/images/DSSD/predict_module.png" width="80%"></center><br>这四种中(c)的效果最好，其中PM：Prediction module。<br><center><img src="/images/DSSD/table4.png" width="50%"></center>
+<li>(d) 两个连续的残差块<center><img src="/images/DSSD/predict_module.png" width="80%"></center>
+这四种中(c)的效果最好，其中PM：Prediction module。
+<center><img src="/images/DSSD/table4.png" width="50%"></center>
 
 </li>
 </ul>
@@ -457,14 +459,37 @@
 <li>使用学习好的反卷积层代替双线性插值的上采样</li>
 </ul>
 <p>最后测试了不同的组合方法：逐元素求和（element-wise sum）和逐元素乘积（element-wise product）。实验表明后者带来了最好的准确率，见Prediction module部分的表。</p>
-<center><img src="/images/DSSD/Deconvolution.png" width="60%"></center><br>上图是反卷积模块，将前一层的feature map反卷积，然后与卷积层的feature map做融合（逐元素相乘），得到具有更多上下文信息和更大分辨率的feature map用来做预测。需要注意的是：<br>- 在反卷积模块中，所有卷积和反卷积操作，卷积个数都依赖于反卷积层的特征图的通道数<br>- 卷积层和ReLu激活层之间有BN层<br><br>## Training<br>几乎和SSD训练方式一样：<br>- 匹配默认框：对于每一个ground turth box，把它与IoU最好的一个默认框匹配，同时与IoU大于0.5的那些默认框匹配。未匹配的那些默认框，根据置信度损失选择高的那些，使得负样本和正样本比例为3:1。<br>- 最小化联合定位损失（Smooth L1）和置信度损失（softmax）<br>- 数据扩增：随机裁切原始图像，随机光度失真，随机翻转裁切的patch，最新版的SSD中数据扩增有助于小目标的检测，因此在DSSD中也采用了。<br><br><strong>对先验的默认框做了一些小的改变：使用K-means，以默认框的面积作为特征，对VOC中的数据进行聚类</strong>。从2开始，逐渐增加聚类中心个数，判断误差是否减小20%，最终收敛在7个聚类中心。<br><center><img src="/images/DSSD/table1.png" width="60%"></center><br>因为SSD把输入图像缩放为正方形，但是大部分图像是比较宽的，所以也不奇怪bounding box是高高的。从表中可以看出，大部分box的高宽比落在1~3之间。<br><br>因为在原始的SSD中，高宽比为2和3的默认框更加有用，因此加入一个1.6的比例，然后<strong>每一个预测层使用3种高宽比的默认框</strong>：（1.6，2.0，3.0）。<br><br># Experiments<br>- Residual-101在ILSVRC CLS-LOC数据集上预训练。<br>- 改变了conv5阶段的stride，从32改为16，提高feature map的分辨率。<br>- 第一个卷积层stride为2，被改为了1。<br>- Conv5阶段所有的卷积层卷积核尺寸大于1，增加膨胀（dilation），从1增加到2，修复由于降低stride引起的洞。<br><br><center><img src="/images/DSSD/table3.png" width="100%"></center>
+<center><img src="/images/DSSD/Deconvolution.png" width="60%"></center>
+上图是反卷积模块，将前一层的feature map反卷积，然后与卷积层的feature map做融合（逐元素相乘），得到具有更多上下文信息和更大分辨率的feature map用来做预测。需要注意的是：
+- 在反卷积模块中，所有卷积和反卷积操作，卷积个数都依赖于反卷积层的特征图的通道数
+- 卷积层和ReLu激活层之间有BN层
+
+## Training
+几乎和SSD训练方式一样：
+- 匹配默认框：对于每一个ground turth box，把它与IoU最好的一个默认框匹配，同时与IoU大于0.5的那些默认框匹配。未匹配的那些默认框，根据置信度损失选择高的那些，使得负样本和正样本比例为3:1。
+- 最小化联合定位损失（Smooth L1）和置信度损失（softmax）
+- 数据扩增：随机裁切原始图像，随机光度失真，随机翻转裁切的patch，最新版的SSD中数据扩增有助于小目标的检测，因此在DSSD中也采用了。
+
+**对先验的默认框做了一些小的改变：使用K-means，以默认框的面积作为特征，对VOC中的数据进行聚类**。从2开始，逐渐增加聚类中心个数，判断误差是否减小20%，最终收敛在7个聚类中心。
+<center><img src="/images/DSSD/table1.png" width="60%"></center>
+因为SSD把输入图像缩放为正方形，但是大部分图像是比较宽的，所以也不奇怪bounding box是高高的。从表中可以看出，大部分box的高宽比落在1~3之间。
+
+因为在原始的SSD中，高宽比为2和3的默认框更加有用，因此加入一个1.6的比例，然后**每一个预测层使用3种高宽比的默认框**：（1.6，2.0，3.0）。
+
+# Experiments
+- Residual-101在ILSVRC CLS-LOC数据集上预训练。
+- 改变了conv5阶段的stride，从32改为16，提高feature map的分辨率。
+- 第一个卷积层stride为2，被改为了1。
+- Conv5阶段所有的卷积层卷积核尺寸大于1，增加膨胀（dilation），从1增加到2，修复由于降低stride引起的洞。
+
+<center><img src="/images/DSSD/table3.png" width="100%"></center>
 
 <p>上图是PASCAL VOC2007上的测试结果，当输入的图像尺寸比较小的时候，把vgg换成resnet效果相似，但是提高输入图像的尺度的话，把vgg替换成resnet-101效果会更好，作者猜测对于Resnet这样非常深的网络，需要更大尺度的输入来让深层的feature map仍然保持较强的空间信息。更重要的是，DSSD比相应的SSD的效果要更好，DSSD对于那些具有特定背景信息的物体和小目标表现出了大的提升。</p>
 <h2 id="Inference-Time"><a href="#Inference-Time" class="headerlink" title="Inference Time"></a>Inference Time</h2><p>为了加速预测过程，使用一些公式移除了BN层，使得速度提高了1.2~1.5倍，并且降低了内存消耗：</p>
 <ul>
-<li>卷积层的输出通过减均值，再除以方差与$\varepsilon$的和，然后缩放并且根据训练过程学习的参数做平移：$$y = scale \left( \frac {(wx+b)-\mu} {\sqrt{var} + \varepsilon}  \right) + shift$$</li>
-<li>卷积层的权重和偏置$$\hat w = scale \left(\frac w {\sqrt{var} + \varepsilon} \right), \hat b = scale \left(\frac {b-\mu} {\sqrt{var} + \varepsilon} \right) + shift$$</li>
-<li>移除了变量相关的BN层，第一个式子概括为$$y = \hat wx + \hat b$$</li>
+<li>卷积层的输出通过减均值，再除以方差与$\varepsilon$的和，然后缩放并且根据训练过程学习的参数做平移：<script type="math/tex">y = scale \left( \frac {(wx+b)-\mu} {\sqrt{var} + \varepsilon}  \right) + shift</script></li>
+<li>卷积层的权重和偏置<script type="math/tex">\hat w = scale \left(\frac w {\sqrt{var} + \varepsilon} \right), \hat b = scale \left(\frac {b-\mu} {\sqrt{var} + \varepsilon} \right) + shift</script></li>
+<li>移除了变量相关的BN层，第一个式子概括为<script type="math/tex">y = \hat wx + \hat b</script></li>
 </ul>
 <p><strong>DSSD因为使用了更深的基础网络，预测模块和反卷积层，以及更多的默认框，所以速度自然比SSD慢</strong>。作者提到一种加速DSSD的方式是使用简单的双线性插值上采样替代反卷积层。</p>
 
