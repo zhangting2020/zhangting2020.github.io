@@ -386,7 +386,7 @@
                   <span class="post-meta-item-text">字数统计&#58;</span>
                 
                 <span title="字数统计">
-                  2,026
+                  2,049
                 </span>
               
 
@@ -446,7 +446,8 @@
 <li>负标签分配给那些与所有的<code>ground-truth box</code>的<code>IoU</code>都低于<code>0.3</code>的<code>anchor</code>。那些与真实值<code>IoU</code>为<code>[0,0.2]</code>的<code>anchor</code>不参与训练。</li>
 </ul>
 <p>使用<code>multi-task loss</code>:</p>
-<script type="math/tex; mode=display">L({p_i},{t_i}) = \frac {1} {N_{cls}} \sum_i L_{cls}(p_i, p_i^\*) + \lambda \frac 1 {N_{reg}} \sum_i p_i^\* L_{reg}(t_i,t_i^\*)</script><p>带$p_i^*$（值为1或0）是第<code>i</code>个<code>anchor</code>是否为目标的真实值，只有<code>anchor</code>为正样本时，回归的损失才会被算入。</p>
+<p>$$L({p_i},{t_i}) = \frac {1} {N_{cls}} \sum_i L_{cls}(p_i, p_i^*) + \lambda \frac 1 {N_{reg}} \sum_i p_i^* L_{reg}(t_i,t_i^*)$$</p>
+<p>带$p_i^*$（值为1或0）是第<code>i</code>个<code>anchor</code>是否为目标的真实值，只有<code>anchor</code>为正样本时，回归的损失才会被算入。</p>
 <h3 id="Training-RPNs"><a href="#Training-RPNs" class="headerlink" title="Training RPNs"></a>Training RPNs</h3><ul>
 <li><strong>一个<code>mini-batch</code>使用一张图像，在其中采样<code>256</code>个<code>anchor</code></strong>，正负<code>anchor</code>的比例是<code>1:1</code>，如果正的样本少于负的，则用负样本去填充这个<code>batch</code>，用这<code>256</code>个<code>anchor</code>计算损失</li>
 <li>使用均值为<code>0</code>，标准差为为<code>0.01</code>的高斯分布随机初始化所有新添加的层，其他的共享卷积层使用<code>ImageNet</code>上预训练的模型初始化</li>

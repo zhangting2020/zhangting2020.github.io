@@ -386,7 +386,7 @@
                   <span class="post-meta-item-text">字数统计&#58;</span>
                 
                 <span title="字数统计">
-                  1,481
+                  1,531
                 </span>
               
 
@@ -468,11 +468,10 @@
 </ul>
 <p><code>SPP-Net</code>最后是一个<code>3</code>层的<code>softmax</code>分类器用于检测（<code>SPP layer</code>后面是两个全连接层，和一个输出层）。由于卷积特征是离线计算的，所以微调过程不能向<code>SPP layer</code>以下的层反向传播误差。以<code>VGG16</code>为例，前<code>13</code>层固定在初始化的值，只有最后<code>3</code>层会被更新。</p>
 <p>在<code>Fast R-CNN</code>中，<code>mini-batch</code>被分层次地采样，首先采样图像，然后采样这些图像的<code>RoIs</code>。来自同一幅图的<code>RoI</code>共享计算和内存，使得训练高效。</p>
-<h2 id="Multi-task-loss"><a href="#Multi-task-loss" class="headerlink" title="Multi-task loss"></a>Multi-task loss</h2><p><code>Fast R-CNN</code>是并行地进行类别的确定和位置的精修的，整体的<code>loss</code>由两部分组成，一部分是分类的损失，另一部分是位置回归的损失，因此定义的损失如下，$k^*$为真实的类别标签，$[k^* \ge 1]$表明只对目标类别计算损失，背景类别的$k^*=0$，提取出的<code>RoI</code>是背景的话，就忽略掉：</p>
-<script type="math/tex; mode=display">L(p,k^\*,t,t\*) = L_{cls}(p,k^\*) + \lambda [k^\* \ge 1] L_{loc}(t, t^\*)</script><script type="math/tex; mode=display">L_{loc}(t,t^\*) = \sum_{i \in {x,y,w,h}} smooth_{L1}(t_i,t^\*_i)</script><script type="math/tex; mode=display">smooth_{L1}(x)=\begin{cases} 
-        0.5x^2, & if~|x|<1 \\ 
-        |x|-0.5, & otherwise
-    \end{cases}</script><p>对于<code>bounding box</code>回归使用<code>Smooth L1 loss</code>是因为，比起<code>R-CNN</code>中使用的<code>L2 loss</code>，<code>Smooth L1 loss</code>对于离群值不敏感。归一化了<code>ground truth</code>的回归目标$t^*$使其具有<code>0</code>均值和单位方差，这样的情况下设置$\lambda = 1$在实验中效果很好。</p>
+<h2 id="Multi-task-loss"><a href="#Multi-task-loss" class="headerlink" title="Multi-task loss"></a>Multi-task loss</h2><p><code>Fast R-CNN</code>是并行地进行类别的确定和位置的精修的，整体的<code>loss</code>由两部分组成，一部分是分类的损失，另一部分是位置回归的损失，因此定义的损失如下，$k^*$为真实的类别标签，$[k^* \ge 1]$表明只对目标类别计算损失，背景类别的$k^*=0$，提取出的<code>RoI</code>是背景的话，就忽略掉：<br>$$L(p,k^*,t,t*) = L_{cls}(p,k^*) + \lambda [k^* \ge 1] L_{loc}(t, t^*)$$ </p>
+<p>$$L_{loc}(t,t^*) = \sum_{i \in {x,y,w,h}} smooth_{L1}(t_i,t^*_i)$$ </p>
+<p>$$smooth_{L1}(x)=\begin{cases}<br>        0.5x^2, &amp; if~|x|&lt;1 \<br>        |x|-0.5, &amp; otherwise<br>    \end{cases}$$</p>
+<p>对于<code>bounding box</code>回归使用<code>Smooth L1 loss</code>是因为，比起<code>R-CNN</code>中使用的<code>L2 loss</code>，<code>Smooth L1 loss</code>对于离群值不敏感。归一化了<code>ground truth</code>的回归目标$t^*$使其具有<code>0</code>均值和单位方差，这样的情况下设置$\lambda = 1$在实验中效果很好。</p>
 <h2 id="Detail"><a href="#Detail" class="headerlink" title="Detail"></a>Detail</h2><ul>
 <li>微调中，<code>batch size N = 2</code>，<code>R=128</code>，也就是每一幅图采样了<code>64</code>个<code>RoI</code></li>
 <li><code>N</code>张完整图片以<code>50%</code>概率水平翻转</li>
