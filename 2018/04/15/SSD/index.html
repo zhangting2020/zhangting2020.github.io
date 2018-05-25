@@ -88,7 +88,7 @@
 <meta property="og:image" content="http://yoursite.com/images/SSD/Framework.png">
 <meta property="og:image" content="http://yoursite.com/images/SSD/SSDandYOLO.png">
 <meta property="og:image" content="http://yoursite.com/images/SSD/result.png">
-<meta property="og:updated_time" content="2018-05-20T09:19:44.082Z">
+<meta property="og:updated_time" content="2018-05-25T13:20:08.694Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="SSD:Single Shot MultiBox Detector">
 <meta name="twitter:description" content="这篇文章发表在ECCV2016上，在既保证速度，又要保证精度的情况下，提出了SSD。使用single deep neural network，便于训练与优化，同时提高检测速度。SSD将bounding box的输出空间离散化为一组默认框，这些默认框在feature map每个位置有不同的高宽比和尺度。在预测时，网络对每一个默认框中存在的目标生成类别分数，并且调整边界框以更好地匹配目标形状。除此之">
@@ -439,7 +439,7 @@
 <p><code>SSD</code>模型在基础网络的末尾添加了几个特征层，这些层预测了对于不同尺度和高宽比的默认框的偏移及其相关置信度。<code>YOLO</code>是用全连接层预测结果，而<code>SSD</code>是用卷积层预测结果。</p>
 <center><img src="/images/SSD/SSDandYOLO.png" width="90%"></center>
 
-<p> 从上图中可以看出，<code>SSD</code>使用<code>VGG-16</code>作为<code>basenet</code>，<code>conv4_3</code>输出的<code>feature map</code>也被进行卷积操作预测结果，在<code>VGG16</code>的<code>conv5_3</code>后，用卷积层替代了全连接层，然后是<code>SSD</code>增加的额外的<code>feature layer</code>。<strong>最后网络输出了<code>9732</code>个候选框信息</strong>（<code>38x38x4+19x19x6+10x10x6+5x5x6+3x3x4+1x4</code>）。不同层级，不同尺度的<code>feature map</code>用作预测，所有的这些预测又经过了非极大值抑制得到最终结果。</p>
+<p> 从上图中可以看出，<code>SSD</code>使用<code>VGG-16</code>作为<code>basenet</code>，<code>conv4_3</code>输出的<code>feature map</code>也被进行卷积操作预测结果，在<code>VGG16</code>的<code>conv5_3</code>后，用卷积层替代了全连接层，然后是<code>SSD</code>增加的额外的<code>feature layer</code>。<strong>最后网络输出了<code>8732</code>个候选框信息</strong>（<code>38x38x4+19x19x6+10x10x6+5x5x6+3x3x4+1x4</code>）。不同层级，不同尺度的<code>feature map</code>用作预测，所有的这些预测又经过了非极大值抑制得到最终结果。</p>
 <h2 id="Training"><a href="#Training" class="headerlink" title="Training"></a>Training</h2><p> 在训练时，<code>SSD</code>与那些用<code>region proposals + pooling</code>方法的区别是：<code>SSD</code>训练图像中的<code>ground truth</code>需要被匹配到<code>default boxes</code>上。如上面的图中，狗的<code>ground truth</code>是红色的<code>bounding boxes</code>，在进行标注的时候，要将红色的 <code>ground truth box</code>匹配到图（<code>c</code>）中一系列固定输出的<code>boxes</code>中的一个，即图（<code>c</code>）中的红色虚线框。<code>SSD</code>的输出是事先定义好的，一系列固定大小的<code>bounding boxes</code>。</p>
 <p><strong>Matching strategy</strong>：对于每一个<code>ground truth box</code>，选择一些位置不同，高宽比以及尺度不同的<code>default box</code>。首先把每个<code>ground truth box</code>与和它具有最高<code>IoU</code>的默认框匹配，确保每个真实标签框有一个匹配的<code>default box</code>。然后把这些<code>default box</code>与和它<code>IoU</code>高于阈值（<code>0.5</code>）的任何<code>ground truth box</code>匹配起来。添加这些匹配简化了学习问题：当存在多个重叠的<code>default box</code>时，网络可以预测多个较高的分数，而不是只能选取一个具有最大<code>IoU</code>的框。</p>
 <p><strong>Choosing scales and aspect ratios for default boxes</strong>： 大部分<code>CNN</code>网络在越深的层，<code>feature map</code>的尺寸会越来越小。这样做不仅仅是为了减少计算与内存的需求，还有个好处就是，最后提取的<code>feature map</code>就会有某种程度上的平移与尺度不变性。为了处理不同尺度的物体，这些网络将图像转换成不同的尺度，然后独立的通过<code>CNN</code>网络处理，再将这些不同尺度的图像结果进行综合。<strong>本文通过用单个网络中的若干不同层的特征图来进行预测，可以处理不同尺度的目标检测，同时还在所有目标尺度上共享参数</strong>。一些文献表明使用来自较低层的特征图可以提高语义分割质量，因为较低层保留的图像细节越多。添加从高层特征图下采样的全局上下文池化可以帮助平滑分割结果。受这些方法的启发，使用低层和高层的特征图进行检测预测。</p>
@@ -576,7 +576,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">19</span>
+                  <span class="site-state-item-count">20</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -598,7 +598,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">8</span>
+                  <span class="site-state-item-count">9</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>

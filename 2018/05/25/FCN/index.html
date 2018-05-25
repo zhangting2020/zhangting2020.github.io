@@ -66,7 +66,7 @@
 
 
 
-  <meta name="keywords" content="Hexo,计算机视觉,目标检测" />
+  <meta name="keywords" content="semantic segmentation," />
 
 
 
@@ -77,13 +77,23 @@
 
 
 
-<meta property="og:type" content="website">
-<meta property="og:title" content="Tina&#39;s Blog">
-<meta property="og:url" content="http://yoursite.com/archives/2018/index.html">
+<meta name="description" content="这篇文章发表于2015年，提出了使用全卷积网络解决语义分割任务，达到像素级的分类结果。">
+<meta name="keywords" content="semantic segmentation">
+<meta property="og:type" content="article">
+<meta property="og:title" content="FCN:Fully Convolutional Networks for Semantic Segmentation">
+<meta property="og:url" content="http://yoursite.com/2018/05/25/FCN/index.html">
 <meta property="og:site_name" content="Tina&#39;s Blog">
+<meta property="og:description" content="这篇文章发表于2015年，提出了使用全卷积网络解决语义分割任务，达到像素级的分类结果。">
 <meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://yoursite.com/images/FCN/skip.png">
+<meta property="og:image" content="http://yoursite.com/images/FCN/net.png">
+<meta property="og:image" content="http://yoursite.com/images/FCN/conv.png">
+<meta property="og:image" content="http://yoursite.com/images/FCN/deconv.png">
+<meta property="og:updated_time" content="2018-05-25T13:16:48.025Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Tina&#39;s Blog">
+<meta name="twitter:title" content="FCN:Fully Convolutional Networks for Semantic Segmentation">
+<meta name="twitter:description" content="这篇文章发表于2015年，提出了使用全卷积网络解决语义分割任务，达到像素级的分类结果。">
+<meta name="twitter:image" content="http://yoursite.com/images/FCN/skip.png">
 
 
 
@@ -113,13 +123,13 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/archives/2018/"/>
+  <link rel="canonical" href="http://yoursite.com/2018/05/25/FCN/"/>
 
 
 
 
 
-  <title>归档 | Tina's Blog</title>
+  <title>FCN:Fully Convolutional Networks for Semantic Segmentation | Tina's Blog</title>
   
 
 
@@ -138,7 +148,7 @@
     
   
 
-  <div class="container sidebar-position-left page-archive">
+  <div class="container sidebar-position-left page-post-detail">
     <div class="headband"></div>
 
     <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
@@ -276,411 +286,226 @@
           <div id="content" class="content">
             
 
-  
-  
-  
-  <div class="post-block archive">
-    <div id="posts" class="posts-collapse">
-      <span class="archive-move-on"></span>
+  <div id="posts" class="posts-expand">
+    
 
-      <span class="archive-page-counter">
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/05/25/FCN/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Ting Zhang">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/cat.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Tina's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
         
         
+          <h1 class="post-title" itemprop="name headline">FCN:Fully Convolutional Networks for Semantic Segmentation</h1>
         
+
+        <div class="post-meta">
           
-        
-        嗯..! 目前共计 20 篇日志。 继续努力。
-      </span>
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-05-25T21:12:44+08:00">
+                2018-05-25
+              </time>
+            
 
-      
+            
 
-        
-        
-        
+            
+          </span>
 
-        
           
-          <div class="collection-title">
-            <h1 class="archive-year" id="archive-year-2018">2018</h1>
-          </div>
-        
-        
-
-        
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h2 class="post-title">
-        
-            <a class="post-title-link" href="/2018/05/25/FCN/" itemprop="url">
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
               
-                <span itemprop="name">FCN:Fully Convolutional Networks for Semantic Segmentation</span>
+                <span class="post-meta-item-text">分类于</span>
               
-            </a>
-        
-      </h2>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/CNN/" itemprop="url" rel="index">
+                    <span itemprop="name">CNN</span>
+                  </a>
+                </span>
 
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2018-05-25T21:12:44+08:00"
-              content="2018-05-25" >
-          05-25
-        </time>
-      </div>
+                
+                
+              
+            </span>
+          
 
-    </header>
-  </article>
+          
+            
+          
 
+          
+          
 
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                  <span class="post-meta-divider">|</span>
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  1,453
+                </span>
+              
+
+              
+
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
 
       
-
-        
-        
-        
-
-        
-        
-
-        
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h2 class="post-title">
-        
-            <a class="post-title-link" href="/2018/05/21/DetNet/" itemprop="url">
-              
-                <span itemprop="name">DetNet:A Backbone network for Object Detection</span>
-              
-            </a>
-        
-      </h2>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2018-05-21T16:34:22+08:00"
-              content="2018-05-21" >
-          05-21
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
-
       
 
-        
-        
-        
+      
+        <blockquote>
+<p>这篇文章发表于2015年，提出了使用全卷积网络解决语义分割任务，达到像素级的分类结果。<br><a id="more"></a></p>
+</blockquote>
+<h1 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h1><p>这篇文章是语义分割任务中，首次端到端训练FCN用于逐像素预测，并且采用监督学习和预训练模型的。语义分割任务在语义性和位置之间有一些矛盾：全局信息解决是什么的问题，局部信息解决在哪里的问题。深度特征的层级结构在局部到全局的金字塔上共同编码了位置和语义信息。这篇文章定义了一种跨层连接组合深的，粗略的层上的语义信息和浅的，精细的层上的外观信息。</p>
+<h1 id="Fully-convolutional-networks"><a href="#Fully-convolutional-networks" class="headerlink" title="Fully convolutional networks"></a>Fully convolutional networks</h1><p>卷积网络因为全连接层或者全局池化层具有平移不变性，Mask R-CNN中也提到过：分类网络需要平移不变性，因为目标在任何位置，不应该影响对它的预测。但是对于检测或者分割任务而言，则需要平移同变性，因为目标位置的移动必须使得输出也相应改变。全卷积网络就具有平移同变性，这就非常适合分割任务。但是卷积网络输出的特征图分辨率是随着层数的加深越来越低的，这对分割任务是不利的，因为分割需要对图像边缘的像素进行精细地分类。</p>
+<p><strong>总之，对于传统的分类网络，运用到分割任务中，需要解决两个问题</strong>：</p>
+<ul>
+<li>替换全连接层为卷积层，从而得到平移同变性的网络</li>
+<li>需要将低分辨率的输出特征图恢复到原始图像尺寸，即上采样，从而得到更加精细的结果</li>
+</ul>
+<h2 id="Adapting-classifiers-for-dense-prediction"><a href="#Adapting-classifiers-for-dense-prediction" class="headerlink" title="Adapting classifiers for dense prediction"></a>Adapting classifiers for dense prediction</h2><p>典型的识别网络比如LeNet，AlexNet等，它们的全连接层具有固定的维度并且丢弃了空间坐标信息。但其实这些全连接层可以被看做是卷积核覆盖了整个输入区域的卷积。下图是全连接转换为卷积层的过程，使得分类网络输出一个热点图(heatmap)。其实就是把4096-d的特征转换为1x1x4096的tensor。</p>
+<p><strong>具体实现的方式是</strong>：</p>
+<p>对于AlexNet，第一个全连接层的输入是7x7x512的，原始网络后面是4096个单元的全连接层，只需将其改为：使用4096个7x7x512的卷积核，就可以得到1x1x4096的输出，后面也是使用与输入尺寸相同的卷积核，就可以把所有全连接层替换为卷积层了。</p>
+<center><imag src="/images/FCN/fig1.png" width="70%"></imag></center>
 
-        
-        
+<p>输出的特征图与原始网络的输出是等价的，但是参数量会更少。另外将网络转换为全卷积网络后，输入的图像就可以是任意尺寸的。因为原始网络需要固定输入主要是因为全连接层是固定维度的，它必须接受固定维度的输入。</p>
+<h2 id="Upsampling-is-backwards-strided-convolution"><a href="#Upsampling-is-backwards-strided-convolution" class="headerlink" title="Upsampling is backwards strided convolution"></a>Upsampling is backwards strided convolution</h2><p>随着网络层数加深，特征图分辨率会越来越小（粗略）。而分割任务需要对应到原始图像尺寸，得到每个像素的类别，为了将特征图恢复到原始图像的分辨率，FCN使用了上采样。加入对于原始图像， 经过逐层卷积后，图像缩小了32倍，那么对于最后一层的输出，就需要32倍的上采样。</p>
+<p>上采样的方式有两种：一是插值；二是反卷积。使用反卷积可以进行端到端的学习，相对于双线性插值来说，反卷积加激活函数可以学习到非线性的上采样。所以文中使用了反卷积做上采样，另外设计了跨层连接。不同的分辨率预测的精细程度是不同的，以下图中8x采样的预测特征图来看，它包含了3部分：conv7进行4x上采样+pool4进行2x上采样+pool3。作者对比了32倍，16倍以及8倍上采样的预测结果：</p>
+<center><img src="/images/FCN/skip.png" width="90%"></center>
 
-        
+<p>跨层结构具体如下图，如文中所说，它融合了深层较强的语义信息和浅层较精细的局部信息，是一种全局信息和局部信息的组合，即“Combining what and where”，达到对预测结果的精修。</p>
+<center><img src="/images/FCN/net.png" width="80%"></center>
 
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
+<h1 id="Learnable-Upsampling-“Deconvolution”"><a href="#Learnable-Upsampling-“Deconvolution”" class="headerlink" title="Learnable Upsampling: “Deconvolution”"></a>Learnable Upsampling: “Deconvolution”</h1><p>Deconvolution并不是一个非常准确的表达，比较正确的表达应该是转置卷积(convolution transpose )。</p>
+<p>下面看一个卷积过程，输入经过stride为2，pad为1，size为3x3的卷积核，得到2x2的输出：</p>
+<center><img src="/images/FCN/conv.png" width="60%"></center>
 
-      <h2 class="post-title">
-        
-            <a class="post-title-link" href="/2018/05/20/博客导航/" itemprop="url">
-              
-                <span itemprop="name">博客导航</span>
-              
-            </a>
-        
-      </h2>
+<p>对于卷积的逆过程，输入是2x2，输出为4x4，要进行2倍上采样：</p>
+<center><img src="/images/FCN/deconv.png" width="60%"></center>
 
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2018-05-20T15:57:16+08:00"
-              content="2018-05-20" >
-          05-20
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
+<p>卷积层的前向传播过程，就等同于转置卷积的反向传播过程；卷积层的反向传播过程，就等同于转置卷积的前向传播过程。</p>
+<h1 id="简评"><a href="#简评" class="headerlink" title="简评"></a>简评</h1><p>这篇文章实现了端到端的语义分割，“pixels in, pixels out”。给一张$W \times H$的输入图像，网络最终能输出$W \times H \times C$的预测，其中$C$代表了类别数。所以每一个像素点都可以被分类到一个类别，给语义分割任务提供了一个很好的思路。最终使用8x上采样的特征图能达到还不错的分割结果，但是多层特征图的融合，其实只是将全局和局部信息组合使用，对于结果有一定的精修作用。在这篇文章之后，有一篇对称反卷积网络，个人感觉，对称结构应该可以更好的解码，有待学习。</p>
+<h1 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h1><ol>
+<li><a href="https://arxiv.org/abs/1411.4038" target="_blank" rel="noopener">论文原文</a></li>
+<li><a href="http://cs231n.stanford.edu/slides/2016/winter1516_lecture13.pdf" target="_blank" rel="noopener">CS231n</a></li>
+</ol>
 
       
-
-        
-        
-        
-
-        
-        
-
-        
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h2 class="post-title">
-        
-            <a class="post-title-link" href="/2018/05/20/Mask-X-R-CNN/" itemprop="url">
-              
-                <span itemprop="name">Mask^X R-CNN:Learning to Segment Every Thing</span>
-              
-            </a>
-        
-      </h2>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2018-05-20T14:45:32+08:00"
-              content="2018-05-20" >
-          05-20
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
-
-      
-
-        
-        
-        
-
-        
-        
-
-        
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h2 class="post-title">
-        
-            <a class="post-title-link" href="/2018/05/06/Mask-R-CNN/" itemprop="url">
-              
-                <span itemprop="name">Mask-R-CNN</span>
-              
-            </a>
-        
-      </h2>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2018-05-06T21:47:07+08:00"
-              content="2018-05-06" >
-          05-06
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
-
-      
-
-        
-        
-        
-
-        
-        
-
-        
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h2 class="post-title">
-        
-            <a class="post-title-link" href="/2018/05/06/FPN/" itemprop="url">
-              
-                <span itemprop="name">Feature Pyramid Networks for Object Detection</span>
-              
-            </a>
-        
-      </h2>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2018-05-06T21:00:21+08:00"
-              content="2018-05-06" >
-          05-06
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
-
-      
-
-        
-        
-        
-
-        
-        
-
-        
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h2 class="post-title">
-        
-            <a class="post-title-link" href="/2018/05/04/DSSD/" itemprop="url">
-              
-                <span itemprop="name">DSSD:Deconvolutional Single Shot Detector</span>
-              
-            </a>
-        
-      </h2>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2018-05-04T17:06:49+08:00"
-              content="2018-05-04" >
-          05-04
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
-
-      
-
-        
-        
-        
-
-        
-        
-
-        
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h2 class="post-title">
-        
-            <a class="post-title-link" href="/2018/05/03/YOLOv3/" itemprop="url">
-              
-                <span itemprop="name">YOLOv3:An Incremental Improvement</span>
-              
-            </a>
-        
-      </h2>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2018-05-03T18:00:00+08:00"
-              content="2018-05-03" >
-          05-03
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
-
-      
-
-        
-        
-        
-
-        
-        
-
-        
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h2 class="post-title">
-        
-            <a class="post-title-link" href="/2018/05/02/YOLOv2/" itemprop="url">
-              
-                <span itemprop="name">YOLO9000:Better, Faster, Stronger</span>
-              
-            </a>
-        
-      </h2>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2018-05-02T15:04:13+08:00"
-              content="2018-05-02" >
-          05-02
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
-
-      
-
-        
-        
-        
-
-        
-        
-
-        
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h2 class="post-title">
-        
-            <a class="post-title-link" href="/2018/04/25/mtcnn/" itemprop="url">
-              
-                <span itemprop="name">Joint Face Detection and Alignment using Multi-task Cascaded Convolutional Networks</span>
-              
-            </a>
-        
-      </h2>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2018-04-25T12:56:33+08:00"
-              content="2018-04-25" >
-          04-25
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
-
-      
-
     </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/semantic-segmentation/" rel="tag"># semantic segmentation</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/05/21/DetNet/" rel="next" title="DetNet:A Backbone network for Object Detection">
+                <i class="fa fa-chevron-left"></i> DetNet:A Backbone network for Object Detection
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
   </div>
   
   
   
-
-  
-  <nav class="pagination">
-    <span class="page-number current">1</span><a class="page-number" href="/archives/2018/page/2/">2</a><a class="extend next" rel="next" href="/archives/2018/page/2/"><i class="fa fa-angle-right"></i></a>
-  </nav>
+  </article>
 
 
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
 
 
           </div>
@@ -688,6 +513,10 @@
 
 
           
+
+  
+
+
 
         </div>
         
@@ -708,8 +537,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+      <section class="site-overview-wrap sidebar-panel">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
@@ -789,6 +627,22 @@
         </div>
       </section>
 
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Introduction"><span class="nav-number">1.</span> <span class="nav-text">Introduction</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Fully-convolutional-networks"><span class="nav-number">2.</span> <span class="nav-text">Fully convolutional networks</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Adapting-classifiers-for-dense-prediction"><span class="nav-number">2.1.</span> <span class="nav-text">Adapting classifiers for dense prediction</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Upsampling-is-backwards-strided-convolution"><span class="nav-number">2.2.</span> <span class="nav-text">Upsampling is backwards strided convolution</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Learnable-Upsampling-“Deconvolution”"><span class="nav-number">3.</span> <span class="nav-text">Learnable Upsampling: “Deconvolution”</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#简评"><span class="nav-number">4.</span> <span class="nav-text">简评</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Reference"><span class="nav-number">5.</span> <span class="nav-text">Reference</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
       
 
       
@@ -925,6 +779,10 @@
 
 
   
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
 
   
 
