@@ -385,7 +385,7 @@
                   <span class="post-meta-item-text">字数统计&#58;</span>
                 
                 <span title="字数统计">
-                  1,478
+                  1,407
                 </span>
               
 
@@ -431,15 +431,15 @@
 
 <h2 id="Triplet-Loss"><a href="#Triplet-Loss" class="headerlink" title="Triplet Loss"></a>Triplet Loss</h2><p>这种<code>embedding</code>使用$f(x) \in R^d$表达，将输入图像$x$嵌入到$d$维的欧式空间中。此外，这里限制它在$d$维超球面，即$||f(x)||_2 = 1$。</p>
 <ul>
-<li>在该空间内，要<strong>确保对于某个特定的人，他的<code>anchor</code>图像$x_i^a$与所有其他的正样本$x_i^p$距离近，与任何负样本$x_i^n$距离远</strong>。即类内距离加上间隔小于类间距离。表示为：$$||f(x_i^a) - f(x_i^p)||^2_2 + \alpha &lt; ||f(x_i^a) - f(x_i^n)||^2_2~~~~ \forall(f(x_i^a),  f(x_i^p), f(x_i^n)) \in \tau$$<br>$\alpha$是用在正负样本对之间的间隔<code>margin</code>。不仅要使<code>anchor</code>与正样本之间的距离小于它和负样本之间的距离，而且要小到某种程度。（SVM中<code>margin</code>不也是这个作用？）。$\tau$是训练集中所有可能的三元组（<code>triplet</code>），共有$N$组。</li>
-<li>损失定义为：$$L = \sum_i^N \left[ ||f(x_i^a) - f(x_i^p)||^2_2 - ||f(x_i^a) - f(x_i^n)||-2^2 + \alpha \right]_+$$<br>这个式子右下角有个$+$号，表示：对于每一组三元组，如果不满足目标不等式时会产生一个为正数的差，损失值就是这个差值，而如果满足目标不等式，损失值会小于0，就取损失值为0。就是对于不满足条件的三元组，进行优化，满足的就不管了。所以目标就是最小化这个损失，让<code>anchor</code>靠近<code>postive</code>而远离<code>negtative</code>，如下图：<center><img src="/images/FaceNet/TripletLoss.png" width="70%"></center>
+<li>在该空间内，要<strong>确保对于某个特定的人，他的<code>anchor</code>图像$x_i^a$与所有其他的正样本$x_i^p$距离近，与任何负样本$x_i^n$距离远</strong>。即类内距离加上间隔小于类间距离。表示为：<script type="math/tex">||f(x_i^a) - f(x_i^p)||^2_2 + \alpha < ||f(x_i^a) - f(x_i^n)||^2_2~~~~ \forall(f(x_i^a),  f(x_i^p), f(x_i^n)) \in \tau</script><br>$\alpha$是用在正负样本对之间的间隔<code>margin</code>。不仅要使<code>anchor</code>与正样本之间的距离小于它和负样本之间的距离，而且要小到某种程度。（SVM中<code>margin</code>不也是这个作用？）。$\tau$是训练集中所有可能的三元组（<code>triplet</code>），共有$N$组。</li>
+<li>损失定义为：<script type="math/tex">L = \sum_i^N \left[ ||f(x_i^a) - f(x_i^p)||^2_2 - ||f(x_i^a) - f(x_i^n)||-2^2 + \alpha \right]_+</script><br>这个式子右下角有个$+$号，表示：对于每一组三元组，如果不满足目标不等式时会产生一个为正数的差，损失值就是这个差值，而如果满足目标不等式，损失值会小于0，就取损失值为0。就是对于不满足条件的三元组，进行优化，满足的就不管了。所以目标就是最小化这个损失，让<code>anchor</code>靠近<code>postive</code>而远离<code>negtative</code>，如下图：<center><img src="/images/FaceNet/TripletLoss.png" width="70%"></center>
 
 </li>
 </ul>
 <h2 id="Triplet-Selection"><a href="#Triplet-Selection" class="headerlink" title="Triplet Selection"></a>Triplet Selection</h2><p>如何选择三元组是训练的关键。太简单的三元组对训练网络没有帮助，<strong>只有那些比较难的三元组才会改善网络性能，加速收敛。所以关键的是选择出那些违背上面不等式的三元组</strong>。</p>
 <ul>
-<li>给定$x_i^a$，要选择的难的正样本需要使<code>anchor</code>和正样本之间的距离大<br>$$argmax_{x_i^p}||f(x_i^a) - f(x_i^p)||_2^2 $$</li>
-<li>相似地，选择难的负样本要使<code>anchor</code>和负样本之间的距离小<br>$$argmin_{x_i^n}||f(x_i^a) - f(x_i^n)||_2^2$$</li>
+<li>给定$x_i^a$，要选择的难的正样本需要使<code>anchor</code>和正样本之间的距离大<script type="math/tex; mode=display">argmax_{x_i^p}||f(x_i^a) - f(x_i^p)||_2^2</script></li>
+<li>相似地，选择难的负样本要使<code>anchor</code>和负样本之间的距离小<script type="math/tex; mode=display">argmin_{x_i^n}||f(x_i^a) - f(x_i^n)||_2^2</script></li>
 </ul>
 <p>文章中说选择最难的负样本会导致在训练早期得到局部最优解，因此不选择最难的负样本，而是选择较难的（<code>semi-hard</code>），也就是说负样本比正样本远离<code>anchor</code>，同时<code>anchor-negtative</code>的距离接近<code>anchor-postive</code>的距离。</p>
 <p>生成三元组时，每个<code>mini-batch</code>中对每个身份选择<code>40</code>个人脸，并且随机采样一些负样本人脸。文中<code>mini-batch</code>是<code>1800</code>个样本。</p>

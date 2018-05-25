@@ -389,7 +389,7 @@
                   <span class="post-meta-item-text">字数统计&#58;</span>
                 
                 <span title="字数统计">
-                  2,358
+                  2,366
                 </span>
               
 
@@ -425,7 +425,8 @@
 <h1 id="Unified-Detection"><a href="#Unified-Detection" class="headerlink" title="Unified Detection"></a>Unified Detection</h1><ul>
 <li><code>YOLO</code>中，输入图像被划分为<code>S×S</code>的网格，如果一个目标的中心落在某一个网格中，则该网格负责检测这个目标。</li>
 <li><strong>每一个网格预测出<code>B</code>个<code>bounding box</code>以及这些<code>box</code>对应的置信度分数</strong>，这些分数反映了模型有多大的把握认为这个<code>box</code>包含一个目标并且预测的<code>bounding box</code>有多精确。<code>Bounding box</code>信息包含<code>5</code>个数据值，分别是<code>x</code>,<code>y</code>,<code>w</code>,<code>h</code>,和<code>confidence</code>。其中<code>x</code>,<code>y</code>是指当前格子预测的物体的<code>bounding box</code>中心位置的坐标。<code>w</code>,<code>h</code>是<code>bounding box</code>的宽度和高度。<code>confidence = Pr(Object)*IoU</code>，如果该网格没有目标，则<code>Pr(Object)</code>为<code>0</code>，否则为<code>1</code>。所以当网格里有目标时，<code>condifence</code>应该与预测值和<code>ground truth</code>的<code>IoU</code>相等。</li>
-<li>每一个网格也预测<code>C</code>个类别条件概率$Pr(Class_i|Obeject)$，表示在该网格包含目标的前提下，目标是某种类别的概率。不管一个网格预测多少个<code>bounding box</code>，总之对这个网格预测出<code>C</code>个类别条件概率。<strong><code>confidence</code>是针对每个<code>bounding box</code>的，而类别条件概率是针对每个网格的</strong>。<center><img src="/images/YOLO/box.png" width="58%"></center><br><center><img src="/images/YOLO/score.png" width="60%"></center>
+<li>每一个网格也预测<code>C</code>个类别条件概率$Pr(Class_i|Obeject)$，表示在该网格包含目标的前提下，目标是某种类别的概率。不管一个网格预测多少个<code>bounding box</code>，总之对这个网格预测出<code>C</code>个类别条件概率。<strong><code>confidence</code>是针对每个<code>bounding box</code>的，而类别条件概率是针对每个网格的</strong>。<center><img src="/images/YOLO/box.png" width="58%"></center>
+<center><img src="/images/YOLO/score.png" width="60%"></center>
 
 </li>
 </ul>
@@ -444,7 +445,16 @@
 <li>回到前面的网络图，加入<code>4</code>个卷积层和<code>2</code>个全连接层，构成<code>YOLO</code>网络。用上一步骤得到的前<code>20</code>个卷积层网络参数来初始化<code>YOLO</code>模型前<code>20</code>个卷积层的网络参数，然后用<code>VOC</code>中<code>20</code>类标注数据进行<code>YOLO</code>模型训练。检测要求细粒度的视觉信息，在训练检测模型时，将输入图像分辨率<code>resize</code>到<code>448x448</code>。</li>
 </ul>
 <p>训练时，每个目标被匹配到对应的某个网格，训练过程中调整这个网格的类别概率，使真实目标类别的概率最高，其它的尽可能小，在每个网格预测的<code>bounding box</code>中找到最好的那个，并且调整它的位置，提高置信度，同时降低其它候选框的置信度。对于没有匹配任何目标的网格，降低这些网格中候选框的置信度，不用调整候选框位置和类别概率。</p>
-<center><img src="/images/YOLO/train.png" width="100%"></center><br>## Loss<br><code>YOLO</code>使用平方和误差作为<code>loss</code>函数来优化模型参数。<br>- 位置误差（坐标、<code>IoU</code>）与分类误差对网络<code>loss</code>的贡献值是不同的，因此<code>YOLO</code>在计算<code>loss</code>时，使用权重为<code>5</code>的因子来修正位置误差。<br>- 在计算<code>IoU</code>误差时，包含物体的格子与不包含物体的格子，二者的<code>IOU</code>误差对网络<code>loss</code>的贡献是不同的。若采用相同的权值，那么不包含物体的格子的<code>confidence</code>值近似为<code>0</code>，变相放大了包含物体的格子的<code>confidence</code>误差在计算网络参数梯度时的影响。为解决这个问题，<code>YOLO</code> 使用权重为<code>0.5</code>的因子修正<code>IoU</code>误差。（注此处的“包含”是指存在一个物体，它的中心坐标落入到格子内）。<br>- 对于相等的误差值，大物体误差对检测的影响应小于小物体误差对检测的影响。这是因为，计算位置偏差时，大的<code>bounding box</code>上的误差和小的<code>bounding box</code>上的误差对各自的检测精确度影响是不一样的（小误差对应于大检测框，影响很小，而对于小检测框影响较大）。<code>YOLO</code>将物体大小的信息项（<code>w</code>和<code>h</code>）进行求平方根来改进这个问题。（注：这个方法并不能完全解决这个问题）。<br><br>综上，<code>YOLO</code>在训练过程中<code>Loss</code>计算如下式所示：<br><br><center><img src="/images/YOLO/loss.jpg" width="60%"></center>
+<center><img src="/images/YOLO/train.png" width="100%"></center>
+## Loss
+`YOLO`使用平方和误差作为`loss`函数来优化模型参数。
+- 位置误差（坐标、`IoU`）与分类误差对网络`loss`的贡献值是不同的，因此`YOLO`在计算`loss`时，使用权重为`5`的因子来修正位置误差。
+- 在计算`IoU`误差时，包含物体的格子与不包含物体的格子，二者的`IOU`误差对网络`loss`的贡献是不同的。若采用相同的权值，那么不包含物体的格子的`confidence`值近似为`0`，变相放大了包含物体的格子的`confidence`误差在计算网络参数梯度时的影响。为解决这个问题，`YOLO` 使用权重为`0.5`的因子修正`IoU`误差。（注此处的“包含”是指存在一个物体，它的中心坐标落入到格子内）。
+- 对于相等的误差值，大物体误差对检测的影响应小于小物体误差对检测的影响。这是因为，计算位置偏差时，大的`bounding box`上的误差和小的`bounding box`上的误差对各自的检测精确度影响是不一样的（小误差对应于大检测框，影响很小，而对于小检测框影响较大）。`YOLO`将物体大小的信息项（`w`和`h`）进行求平方根来改进这个问题。（注：这个方法并不能完全解决这个问题）。
+
+综上，`YOLO`在训练过程中`Loss`计算如下式所示：
+
+<center><img src="/images/YOLO/loss.jpg" width="60%"></center>
 
 <h2 id="Limitations-of-YOLO"><a href="#Limitations-of-YOLO" class="headerlink" title="Limitations of YOLO"></a>Limitations of YOLO</h2><p><code>YOLO</code>的局限性：</p>
 <ul>
