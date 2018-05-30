@@ -50,7 +50,7 @@
   <entry>
     <title><![CDATA[博客导航]]></title>
     <url>%2F2018%2F05%2F20%2F%E5%8D%9A%E5%AE%A2%E5%AF%BC%E8%88%AA%2F</url>
-    <content type="text"><![CDATA[为方便浏览本博客的信息，建立了博客导航。 论文笔记 目标检测DetNetYOLOv3FPNDSSDYOLOv2SSDYOLOMTCNNR-FCNFaster R-CNNFast R-CNNSPPNetR-CNNAdaBoost+Haar-Like 实例分割Mask^X R-CNNMask-R-CNN 语义分割FCN 人脸识别FaceNetDeepID]]></content>
+    <content type="text"><![CDATA[为方便浏览本博客的信息，建立了博客导航。 论文笔记 目标检测DetNetYOLOv3FPNDSSDYOLOv2SSDYOLOMTCNNR-FCNFaster R-CNNFast R-CNNSPPNetR-CNNAdaBoost+Haar-Like 实例分割Mask^X R-CNNMask-R-CNNFCIS 语义分割FCN 人脸识别FaceNetDeepIDCNN卷积神经网络为什么具有平移不变性？]]></content>
   </entry>
   <entry>
     <title><![CDATA[Mask^X R-CNN:Learning to Segment Every Thing]]></title>
