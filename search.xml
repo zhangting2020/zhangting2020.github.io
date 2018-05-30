@@ -1,6 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title><![CDATA[卷积神经网络为什么具有平移不变性？]]></title>
+    <url>%2F2018%2F05%2F30%2FTransform-Invariance%2F</url>
+    <content type="text"><![CDATA[在我们读计算机视觉的相关论文时，经常会看到平移不变性这个词，本文将介绍卷积神经网络中的平移不变性是什么，以及为什么具有平移不变性。 什么是平移不变性不变性不变性意味着即使目标的外观发生了某种变化，但是你依然可以把它识别出来。这对图像分类来说是一种很好的特性，因为我们希望图像中目标无论是被平移，被旋转，还是被缩放，甚至是不同的光照条件、视角，都可以被成功地识别出来。 所以上面的描述就对应着各种不变性： 平移不变性：Translation Invariance 旋转/视角不变性：Ratation/Viewpoint Invariance 尺度不变性：Size Invariance 光照不变性：Illumination Invariance 平移不变性/平移同变性在欧几里得几何中，平移是一种几何变换，表示把一幅图像或一个空间中的每一个点在相同方向移动相同距离。比如对图像分类任务来说，图像中的目标不管被移动到图片的哪个位置，得到的结果（标签）应该是相同的，这就是卷积神经网络中的平移不变性。 平移不变性意味着系统产生完全相同的响应（输出），不管它的输入是如何平移的 。平移同变性（translation equivariance）意味着系统在不同位置的工作原理相同，但它的响应随着目标位置的变化而变化 。比如，实例分割任务，就需要平移同变性，目标如果被平移了，那么输出的实例掩码也应该相应地变化。最近看的FCIS这篇文章中提到，一个像素在某一个实例中可能是前景，但是在相邻的一个实例中可能就是背景了，也就是说，同一个像素在不同的相对位置，具有不同的语义，对应着不同的响应，这说的也是平移同变性。 为什么卷积神经网络具有平移不变性简单地说，卷积+最大池化约等于平移不变性。 卷积：简单地说，图像经过平移，相应的特征图上的表达也是平移的。下图只是一个为了说明这个问题的例子。输入图像的左下角有一个人脸，经过卷积，人脸的特征（眼睛，鼻子）也位于特征图的左下角。 假如人脸特征在图像的左上角，那么卷积后对应的特征也在特征图的左上角。 在神经网络中，卷积被定义为不同位置的特征检测器，也就意味着，无论目标出现在图像中的哪个位置，它都会检测到同样的这些特征，输出同样的响应。比如人脸被移动到了图像左下角，卷积核直到移动到左下角的位置才会检测到它的特征。 池化：比如最大池化，它返回感受野中的最大值，如果最大值被移动了，但是仍然在这个感受野中，那么池化层也仍然会输出相同的最大值。这就有点平移不变的意思了。 所以这两种操作共同提供了一些平移不变性，即使图像被平移，卷积保证仍然能检测到它的特征，池化则尽可能地保持一致的表达。 Reference How is a convolutional neural network able to learn invariant features? Why and how are convolutional neural networks translation-invariant?]]></content>
+      <categories>
+        <category>CNN</category>
+      </categories>
+      <tags>
+        <tag>CNN</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[FCIS:Fully Convolutional Instance-aware Semantic Segmentation]]></title>
+    <url>%2F2018%2F05%2F30%2FFCIS%2F</url>
+    <content type="text"><![CDATA[这篇文章发表于2016年，提出了第一个端到端的实例分割模型，同时检测和分割实例。通过引入位置敏感的内/外分数图，底层的卷积表达被两个子任务以及所有的感兴趣区域完全地共享。 IntroductionFCN接受一幅任意尺寸的图像，通过一系列的卷积，最终为每一个像素产生关于每个类别的概率，从而实现了简单、高效、端对端的语义分割。但是FCN并不能解决实例分割任务，因为卷积具有平移不变性，同一个像素点接收的响应（类别分数）是相同的，与它在上下文中的相对位置无关。简单点说，因为卷积的平移不变性，图像中物体无论在哪个位置，它所对应的类别是固定的，所以语义分割中，每个像素点只能对应一种语义。实例分割任务需要在区域级上操作，并且同一个像素在不同的区域中具有不同的语义，比如在这个区域中，它可能是前景，但在另一个区域中可能就是背景。 现有的方法解决这个问题主要是通过在3个stage中采取不同的子网络： 利用FCN在整幅图像上生成中间特征图和共享特征图 使用一个池化层将共享特征图中的每一个RoI处理成固定尺寸的特征图 在最后的网络中使用一个或多个全连接层把每一个RoI的特征图转换为每一个RoI的掩码。 这种方案存在几个问题： RoI池化将每一个RoI转换为相同的尺度，feature warping和resizing损失了空间细节，得到的特征表达降低了分割的精确度。特别是对大目标而言，其特征图会被缩小后再处理，那么一些小的部件可能就会丢失。 在不使用局部权重共享的情况下，全连接层参数是过多的。训练和测试的代价也会较大。 FCIS中针对上面的问题处理方式是： 去掉RoI池化，使用位置敏感分数图，将一组不同位置的分数图通过组合，得到RoI的特征 底层的特征是完全共享的，所有的RoI都是直接从计算好的特征图中取出来；全连接层被去掉，使用了全卷积网络，参数量减少。 下图中（a）是传统的用于语义分割的FCN，得到一个分数图，用来预测每一个像素所属的类别，这种方法并不知道像素是什么实例的。（b）是Instance-sensitive fully convolutional networks这篇文章的方法，InstanceFCN使用3x3的位置敏感分数图编码相对位置信息。它的下游网络对segment proposal分类。检测和分割是分离的，不是端对端的。（c）是FCIS，位置敏感的内/外分数图被联合使用，同时进行目标分割和检测。 Our ApproachPosition sensitive Score Map Parameterization在FCN中，分类器被用于产生每一个像素属于目标类别的概率，这是平移不变的，而且其所属的目标实例是未知的。那么对于相邻的两个目标，有时候一个像素在这个目标上可能是前景，但是在另一个目标上可能就是背景了，在不同的位置对应着不同的语义。所以像FCN那样使用一个分数图并不足以区分这种情形。 为了引入平移同变性，InstanceFCN中采用了$k^2$个位置敏感分数图，如图中共9个分数图。一组分数图对应的是RoI中不同位置的分数，比如第一个分数图对应了RoI中均匀划分的3x3的网格中左上角的那一块的分数。 为什么使用位置敏感分数图可以带来平移同变性呢？比如下图中两个人物分别对应着两个不同的RoI，红点部分是两个RoI重叠的部分，这幅图像产生的inside分数图是左边的9个，被两个RoI共享。位置敏感分数图中同一个像素点，在不同的相对位置，有着不同的分数。对每个RoI，分别使用位置敏感的RoI池化组成最终的RoI的inside/outside分数图。可以看到红色点对应的分数是不一样的，它在左边人物的RoI中前景分数很高（白），而在右边人物的RoI中前景分数就很低。同一个像素在不同的位置对应着不同的语义，这就是平移同变性。 Joint Mask Prediction and Classification使用位置敏感分数图可以解决实例分割问题，但是实例的类别是未知的，过去的方法都是使用一个子网络去解决分类问题，FCIS中是通过2类分数图inside/outside score map来联合解决分割和分类问题的： inside score map：像素在某个相对位置属于某个目标实例，并且在目标边界内 outside score map：像素在某个相对位置属于某个目标实例，并且在目标边界外 同一组位置敏感分数图，以及底层卷积被目标检测和分割两个子任务共享。对于RoI中的每一个像素，有两个任务：检测，它是否属于某一个目标的bounding box（detection+/detection-）；分割，它是否属于某个实例，即是否在实例边界内（segmentation+/segmentation-）。简单的方式是独立地训练两个分类器，两个分数图是分开使用的，这种情况下，两个分类器是两个1x1的卷积层。 但是FCIS通过一个联合规则（joint formulation），融合了inside/outside score map这两种分数图，如果一个像素在一个RoI中是前景，那么inside分数就会比较高，而outside分数就会比较低。对一个像素来说总共有三种情形： 高的inside分数和低的outside分数：即detection+，segmentation+ 低的inside分数和高的outside分数：detection+，segmentation- 低的inside分数和低的outside分数：detection-，segmentation- 这里并没有出现两种分数都很高的情况，作者没有提到，其实也可以这么理解，因为对于一个像素来说，只可能是上面的3种情况中的一种，两者分数都很高代表了这个像素点在实例边界内，同时在实例边界外，这是不可能的。 两种分数图之后会被联合使用： 对于检测，使用逐像素的max操作区分前两种情况和第三种情况。之后跟随一个在所有类别上的softmax操作，然后通过对所有像素的概率进行平均池化，得到整个RoI的检测分数。 对于分割，在每个像素上使用softmax区分第一种和第二种情况，RoI的前景掩码（概率值）是每个像素对于每个类别的分割分数的并集。 检测和分割这两个分数集合来自两个1x1卷积层。inside/outside分类器被联合训练，因为它们接收来自于分割和检测损失的梯度。 这种方法有许多可取的特性：每一个RoI组分没有自由参数；特征图是通过一个FCN产生的，没有涉及到特征的warping，缩放以及全连接层；所有的特征和分数图都遵守原始图像的高宽比；FCN的局部权重共享特性被保持并且作为一种正则化机制；所有的RoI计算是简单、快速的，甚至可以是忽略不计的。 An End to End SolutionFCIS使用ResNet-101，去掉最后用于分类的全连接层，只训练前面的卷积层，最后的特征图是2048通道的，通过1x1的卷积降维到1024。ResNet中，特征图分辨率的stride是32，对于实例分割来说太过粗略了。为了降低stride，使用了”hole algorithm”，conv5第一个block的stride从2降到1，所以最终特征stride为16。为了保持感受野，conv5所有的卷积层dilation都设置为2。 下图是网络结构示意图： 首先是基础网络提取特征，作者为了与其他方法公平比较，在conv4之后使用RPN生成RoIs。RPN也是全卷积的。 使用1x1的卷积从conv5的特征图生成$2k^2(C+1)$的分数图：C类+1个背景；默认地，$k=7$，每一类2组分数图，每一组都是$k^2$个。因为最终的特征图相比原始图像缩小了16倍，因此在特征图上，每一个RoI相当于被投影进16倍小的区域中。 并列的1x1的卷积层，通道数为$4k^2$，添加在conv5特征图后用来估计bounding box的偏移量。 随后经过前面提到的联合公式，将每一组的$k^2$个分数图进行组合，得到最终的内/外分数图。 最后对内/外分数图进行逐像素的softmax得到实例掩码；逐像素的max-&gt;softmax-&gt;平均池化-&gt;投票，得到RoI所属的类别。 Inference 对一张输入图像，RPN产生300个分数最高的RoI，然后它们通过bounding box分支产生精修过的新的300个RoI。对每一个RoI，最终得到它的分类分数和所有类别的前景掩码（概率）。 使用IoU阈值为0.3的NMS，过滤重叠的RoI。剩下的按照最高的类别分数进行分类。 前景的掩码通过掩码投票获得。具体来说，对一个RoI，从600个RoI中找到所有的与它IoU高于0.5的RoIs，根据像素对应的分类分数加权求平均，然后二值化作为输出。 Training 正负样本：如果一个RoI的box与最近的ground truth的IoU大于0.5，则这个RoI为正样本，否则为负样本 每个RoI有3项权重相等的损失： C+1类的softmax检测损失 softmax分割损失：ground truth和预测的前景掩码之间的损失，累加RoI所有像素上的损失然后通过RoI的尺寸进行标准化。 bbox回归损失。后两项损失只计算正样本的。 训练图像缩放到短边为600。 OHEM，每个mini-batch，一幅图像的300个RoI被进行前向传播，选择其中损失最高的128个RoI反向传播它们的误差梯度。 对于RPN，默认使用9个anchor（3个尺度，3个高宽比）。COCO数据集多用3个anchor 整个网络是联合训练的，实现特征共享 简评FCIS可以说是RPN + Position Sensitive ROI Pooling + Inside/Outside Score maps，将这几部分融合进一个网络，进行端到端的实例分割。主要的亮点就是 Inside/Outside分数图，将检测和分割两种任务关联了起来。 Reference 论文原文 关于FCIS的PPT-非原作者 CVPR上的文章讲解]]></content>
+      <categories>
+        <category>CNN</category>
+      </categories>
+      <tags>
+        <tag>paper</tag>
+        <tag>instance segmentation</tag>
+      </tags>
+  </entry>
+  <entry>
     <title><![CDATA[FCN:Fully Convolutional Networks for Semantic Segmentation]]></title>
     <url>%2F2018%2F05%2F25%2FFCN%2F</url>
     <content type="text"><![CDATA[这篇文章发表于2015年，提出了使用全卷积网络解决语义分割任务，达到像素级的分类结果。 Introduction这篇文章是语义分割任务中，首次端到端训练FCN用于逐像素预测，并且采用监督学习和预训练模型的。语义分割任务在语义性和位置之间有一些矛盾：全局信息解决是什么的问题，局部信息解决在哪里的问题。深度特征的层级结构在局部到全局的金字塔上共同编码了位置和语义信息。这篇文章定义了一种跨层连接组合深的，粗略的层上的语义信息和浅的，精细的层上的外观信息。 Fully convolutional networks卷积网络因为全连接层或者全局池化层具有平移不变性，Mask R-CNN中也提到过：分类网络需要平移不变性，因为目标在任何位置，不应该影响对它的预测。但是对于检测或者分割任务而言，则需要平移同变性，因为目标位置的移动必须使得输出也相应改变。全卷积网络就具有平移同变性，这就非常适合分割任务。但是卷积网络输出的特征图分辨率是随着层数的加深越来越低的，这对分割任务是不利的，因为分割需要对图像边缘的像素进行精细地分类。 总之，对于传统的分类网络，运用到分割任务中，需要解决两个问题： 替换全连接层为卷积层，从而得到平移同变性的网络 需要将低分辨率的输出特征图恢复到原始图像尺寸，即上采样，从而得到更加精细的结果 Adapting classifiers for dense prediction典型的识别网络比如LeNet，AlexNet等，它们的全连接层具有固定的维度并且丢弃了空间坐标信息。但其实这些全连接层可以被看做是卷积核覆盖了整个输入区域的卷积。下图是全连接转换为卷积层的过程，使得分类网络输出一个热点图(heatmap)。其实就是把4096-d的特征转换为1x1x4096的tensor。 具体实现的方式是： 对于AlexNet，第一个全连接层的输入是7x7x512的，原始网络后面是4096个单元的全连接层，只需将其改为：使用4096个7x7x512的卷积核，就可以得到1x1x4096的输出，后面也是使用与输入尺寸相同的卷积核，就可以把所有全连接层替换为卷积层了。 输出的特征图与原始网络的输出是等价的，但是参数量会更少。另外将网络转换为全卷积网络后，输入的图像就可以是任意尺寸的。因为原始网络需要固定输入主要是因为全连接层是固定维度的，它必须接受固定维度的输入。 Upsampling is backwards strided convolution随着网络层数加深，特征图分辨率会越来越小（粗略）。而分割任务需要对应到原始图像尺寸，得到每个像素的类别，为了将特征图恢复到原始图像的分辨率，FCN使用了上采样。加入对于原始图像， 经过逐层卷积后，图像缩小了32倍，那么对于最后一层的输出，就需要32倍的上采样。 上采样的方式有两种：一是插值；二是反卷积。使用反卷积可以进行端到端的学习，相对于双线性插值来说，反卷积加激活函数可以学习到非线性的上采样。所以文中使用了反卷积做上采样，另外设计了跨层连接。不同的分辨率预测的精细程度是不同的，以下图中8x采样的预测特征图来看，它包含了3部分：conv7进行4x上采样+pool4进行2x上采样+pool3。作者对比了32倍，16倍以及8倍上采样的预测结果： 跨层结构具体如下图，如文中所说，它融合了深层较强的语义信息和浅层较精细的局部信息，是一种全局信息和局部信息的组合，即“Combining what and where”，达到对预测结果的精修。 Learnable Upsampling: “Deconvolution”Deconvolution并不是一个非常准确的表达，比较正确的表达应该是转置卷积(convolution transpose )。 下面看一个卷积过程，输入经过stride为2，pad为1，size为3x3的卷积核，得到2x2的输出： 对于卷积的逆过程，输入是2x2，输出为4x4，要进行2倍上采样： 卷积层的前向传播过程，就等同于转置卷积的反向传播过程；卷积层的反向传播过程，就等同于转置卷积的前向传播过程。 简评这篇文章实现了端到端的语义分割，“pixels in, pixels out”。给一张$W \times H$的输入图像，网络最终能输出$W \times H \times C$的预测，其中$C$代表了类别数。所以每一个像素点都可以被分类到一个类别，给语义分割任务提供了一个很好的思路。最终使用8x上采样的特征图能达到还不错的分割结果，但是多层特征图的融合，其实只是将全局和局部信息组合使用，对于结果有一定的精修作用。在这篇文章之后，有一篇对称反卷积网络，个人感觉，对称结构应该可以更好的解码，有待学习。 Reference 论文原文 CS231n]]></content>
@@ -8,6 +31,7 @@
         <category>CNN</category>
       </categories>
       <tags>
+        <tag>paper</tag>
         <tag>semantic segmentation</tag>
       </tags>
   </entry>
@@ -19,8 +43,8 @@
         <category>CNN</category>
       </categories>
       <tags>
-        <tag>object dection</tag>
-        <tag>image classification</tag>
+        <tag>object detection</tag>
+        <tag>paper</tag>
       </tags>
   </entry>
   <entry>
@@ -37,6 +61,7 @@
       </categories>
       <tags>
         <tag>object detection</tag>
+        <tag>paper</tag>
         <tag>instance segmentation</tag>
       </tags>
   </entry>
@@ -49,6 +74,7 @@
       </categories>
       <tags>
         <tag>object detection</tag>
+        <tag>paper</tag>
         <tag>instance segmentation</tag>
       </tags>
   </entry>
@@ -61,6 +87,7 @@
       </categories>
       <tags>
         <tag>object detection</tag>
+        <tag>paper</tag>
         <tag>instance segmentation</tag>
         <tag>feature pyramid</tag>
       </tags>
@@ -74,6 +101,7 @@
       </categories>
       <tags>
         <tag>object detection</tag>
+        <tag>paper</tag>
       </tags>
   </entry>
   <entry>
@@ -85,6 +113,7 @@
       </categories>
       <tags>
         <tag>object detection</tag>
+        <tag>paper</tag>
       </tags>
   </entry>
   <entry>
@@ -96,6 +125,7 @@
       </categories>
       <tags>
         <tag>object detection</tag>
+        <tag>paper</tag>
       </tags>
   </entry>
   <entry>
@@ -107,8 +137,8 @@
       </categories>
       <tags>
         <tag>object detection</tag>
+        <tag>paper</tag>
         <tag>face detection</tag>
-        <tag>CNN</tag>
       </tags>
   </entry>
   <entry>
@@ -120,6 +150,7 @@
       </categories>
       <tags>
         <tag>object detection</tag>
+        <tag>paper</tag>
       </tags>
   </entry>
   <entry>
@@ -131,6 +162,7 @@
       </categories>
       <tags>
         <tag>object detection</tag>
+        <tag>paper</tag>
       </tags>
   </entry>
   <entry>
@@ -142,6 +174,7 @@
       </categories>
       <tags>
         <tag>object detection</tag>
+        <tag>paper</tag>
       </tags>
   </entry>
   <entry>
@@ -152,6 +185,7 @@
         <category>CNN</category>
       </categories>
       <tags>
+        <tag>paper</tag>
         <tag>face recognition</tag>
       </tags>
   </entry>
@@ -163,6 +197,7 @@
         <category>CNN</category>
       </categories>
       <tags>
+        <tag>paper</tag>
         <tag>face recognition</tag>
       </tags>
   </entry>
@@ -175,6 +210,7 @@
       </categories>
       <tags>
         <tag>object detection</tag>
+        <tag>paper</tag>
         <tag>face detection</tag>
       </tags>
   </entry>
@@ -187,6 +223,7 @@
       </categories>
       <tags>
         <tag>object detection</tag>
+        <tag>paper</tag>
       </tags>
   </entry>
   <entry>
@@ -198,6 +235,7 @@
       </categories>
       <tags>
         <tag>object detection</tag>
+        <tag>paper</tag>
       </tags>
   </entry>
   <entry>
@@ -209,6 +247,7 @@
       </categories>
       <tags>
         <tag>object detection</tag>
+        <tag>paper</tag>
       </tags>
   </entry>
   <entry>
@@ -220,6 +259,7 @@
       </categories>
       <tags>
         <tag>object detection</tag>
+        <tag>paper</tag>
       </tags>
   </entry>
 </search>

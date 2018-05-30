@@ -1,0 +1,1247 @@
+<!DOCTYPE html>
+
+
+
+
+<html class="theme-next gemini" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="paper,instance segmentation," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="这篇文章发表于2016年，提出了第一个端到端的实例分割模型，同时检测和分割实例。通过引入位置敏感的内/外分数图，底层的卷积表达被两个子任务以及所有的感兴趣区域完全地共享。">
+<meta name="keywords" content="paper,instance segmentation">
+<meta property="og:type" content="article">
+<meta property="og:title" content="FCIS:Fully Convolutional Instance-aware Semantic Segmentation">
+<meta property="og:url" content="http://yoursite.com/2018/05/30/FCIS/index.html">
+<meta property="og:site_name" content="Tina&#39;s Blog">
+<meta property="og:description" content="这篇文章发表于2016年，提出了第一个端到端的实例分割模型，同时检测和分割实例。通过引入位置敏感的内/外分数图，底层的卷积表达被两个子任务以及所有的感兴趣区域完全地共享。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://yoursite.com/images/FCIS/idea.png">
+<meta property="og:image" content="http://yoursite.com/images/FCIS/FCIS.png">
+<meta property="og:image" content="http://yoursite.com/images/FCIS/scoremap.png">
+<meta property="og:image" content="http://yoursite.com/images/FCIS/detail.png">
+<meta property="og:image" content="http://yoursite.com/images/FCIS/network.png">
+<meta property="og:updated_time" content="2018-05-30T14:10:42.112Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="FCIS:Fully Convolutional Instance-aware Semantic Segmentation">
+<meta name="twitter:description" content="这篇文章发表于2016年，提出了第一个端到端的实例分割模型，同时检测和分割实例。通过引入位置敏感的内/外分数图，底层的卷积表达被两个子任务以及所有的感兴趣区域完全地共享。">
+<meta name="twitter:image" content="http://yoursite.com/images/FCIS/idea.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":true,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/05/30/FCIS/"/>
+
+
+
+
+
+  <title>FCIS:Fully Convolutional Instance-aware Semantic Segmentation | Tina's Blog</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Tina's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/05/30/FCIS/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Ting Zhang">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/cat.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Tina's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">FCIS:Fully Convolutional Instance-aware Semantic Segmentation</h1>
+        
+
+        <div class="post-meta">
+          
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-05-30T22:03:28+08:00">
+                2018-05-30
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/CNN/" itemprop="url" rel="index">
+                    <span itemprop="name">CNN</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                  <span class="post-meta-divider">|</span>
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  2,809
+                </span>
+              
+
+              
+
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <blockquote>
+<p>这篇文章发表于2016年，提出了第一个端到端的实例分割模型，同时检测和分割实例。通过引入位置敏感的内/外分数图，底层的卷积表达被两个子任务以及所有的感兴趣区域完全地共享。<br><a id="more"></a></p>
+</blockquote>
+<h1 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h1><p>FCN接受一幅任意尺寸的图像，通过一系列的卷积，最终为每一个像素产生关于每个类别的概率，从而实现了简单、高效、端对端的语义分割。但是FCN并不能解决实例分割任务，因为卷积具有平移不变性，同一个像素点接收的响应（类别分数）是相同的，与它在上下文中的相对位置无关。简单点说，因为卷积的平移不变性，图像中物体无论在哪个位置，它所对应的类别是固定的，所以语义分割中，每个像素点只能对应一种语义。<strong>实例分割任务需要在区域级上操作，并且同一个像素在不同的区域中具有不同的语义</strong>，比如在这个区域中，它可能是前景，但在另一个区域中可能就是背景。</p>
+<p>现有的方法解决这个问题主要是通过在3个stage中采取不同的子网络：</p>
+<ul>
+<li>利用FCN在整幅图像上生成中间特征图和共享特征图</li>
+<li>使用一个池化层将共享特征图中的每一个RoI处理成固定尺寸的特征图</li>
+<li>在最后的网络中使用一个或多个全连接层把每一个RoI的特征图转换为每一个RoI的掩码。</li>
+</ul>
+<p>这种方案存在几个问题：</p>
+<ul>
+<li>RoI池化将每一个RoI转换为相同的尺度，feature warping和resizing损失了空间细节，得到的特征表达降低了分割的精确度。特别是对大目标而言，其特征图会被缩小后再处理，那么一些小的部件可能就会丢失。</li>
+<li>在不使用局部权重共享的情况下，全连接层参数是过多的。训练和测试的代价也会较大。</li>
+</ul>
+<p><strong>FCIS中针对上面的问题处理方式是</strong>：</p>
+<ul>
+<li>去掉RoI池化，使用位置敏感分数图，将一组不同位置的分数图通过组合，得到RoI的特征</li>
+<li>底层的特征是完全共享的，所有的RoI都是直接从计算好的特征图中取出来；全连接层被去掉，使用了全卷积网络，参数量减少。</li>
+</ul>
+<p>下图中（a）是传统的用于语义分割的FCN，得到一个分数图，用来预测每一个像素所属的类别，这种方法并不知道像素是什么实例的。（b）是<a href="https://arxiv.org/abs/1603.08678" target="_blank" rel="noopener">Instance-sensitive fully convolutional networks</a>这篇文章的方法，InstanceFCN使用3x3的位置敏感分数图编码相对位置信息。它的下游网络对segment proposal分类。检测和分割是分离的，不是端对端的。（c）是FCIS，位置敏感的内/外分数图被联合使用，同时进行目标分割和检测。</p>
+<center><img src="/images/FCIS/idea.png" width="70%"></center>
+
+<h1 id="Our-Approach"><a href="#Our-Approach" class="headerlink" title="Our Approach"></a>Our Approach</h1><h2 id="Position-sensitive-Score-Map-Parameterization"><a href="#Position-sensitive-Score-Map-Parameterization" class="headerlink" title="Position sensitive Score Map Parameterization"></a>Position sensitive Score Map Parameterization</h2><p>在FCN中，分类器被用于产生每一个像素属于目标类别的概率，这是平移不变的，而且其所属的目标实例是未知的。那么对于相邻的两个目标，有时候一个像素在这个目标上可能是前景，但是在另一个目标上可能就是背景了，在不同的位置对应着不同的语义。所以像FCN那样使用一个分数图并不足以区分这种情形。</p>
+<p>为了引入平移同变性，InstanceFCN中采用了$k^2$个位置敏感分数图，如图中共9个分数图。一组分数图对应的是RoI中不同位置的分数，比如第一个分数图对应了RoI中均匀划分的3x3的网格中左上角的那一块的分数。</p>
+<p><strong>为什么使用位置敏感分数图可以带来平移同变性呢</strong>？比如下图中两个人物分别对应着两个不同的RoI，红点部分是两个RoI重叠的部分，这幅图像产生的inside分数图是左边的9个，被两个RoI共享。<strong>位置敏感分数图中同一个像素点，在不同的相对位置，有着不同的分数。对每个RoI，分别使用位置敏感的RoI池化组成最终的RoI的inside/outside分数图</strong>。可以看到红色点对应的分数是不一样的，它在左边人物的RoI中前景分数很高（白），而在右边人物的RoI中前景分数就很低。同一个像素在不同的位置对应着不同的语义，这就是平移同变性。</p>
+<center><img src="/images/FCIS/FCIS.png" width="70%"></center>
+
+<h2 id="Joint-Mask-Prediction-and-Classification"><a href="#Joint-Mask-Prediction-and-Classification" class="headerlink" title="Joint Mask Prediction and Classification"></a>Joint Mask Prediction and Classification</h2><p>使用位置敏感分数图可以解决实例分割问题，但是实例的类别是未知的，过去的方法都是使用一个子网络去解决分类问题，<strong>FCIS中是通过2类分数图inside/outside score map来联合解决分割和分类问题的</strong>：</p>
+<ul>
+<li>inside score map：像素在某个相对位置属于某个目标实例，并且在目标边界内</li>
+<li>outside score map：像素在某个相对位置属于某个目标实例，并且在目标边界外</li>
+</ul>
+<p>同一组位置敏感分数图，以及底层卷积被目标检测和分割两个子任务共享。对于RoI中的每一个像素，有两个任务：检测，它是否属于某一个目标的bounding box（detection+/detection-）；分割，它是否属于某个实例，即是否在实例边界内（segmentation+/segmentation-）。简单的方式是独立地训练两个分类器，两个分数图是分开使用的，这种情况下，两个分类器是两个1x1的卷积层。</p>
+<p>但是FCIS通过一个联合规则（joint formulation），融合了inside/outside score map这两种分数图，如果一个像素在一个RoI中是前景，那么inside分数就会比较高，而outside分数就会比较低。对一个像素来说总共有三种情形：</p>
+<ol>
+<li>高的inside分数和低的outside分数：即detection+，segmentation+</li>
+<li>低的inside分数和高的outside分数：detection+，segmentation-</li>
+<li>低的inside分数和低的outside分数：detection-，segmentation-</li>
+</ol>
+<p>这里并没有出现两种分数都很高的情况，作者没有提到，其实也可以这么理解，因为对于一个像素来说，只可能是上面的3种情况中的一种，两者分数都很高代表了这个像素点在实例边界内，同时在实例边界外，这是不可能的。</p>
+<center><img src="/images/FCIS/scoremap.png" width="80%"></center>
+
+<p>两种分数图之后会被联合使用：</p>
+<ul>
+<li>对于检测，使用逐像素的max操作区分前两种情况和第三种情况。之后跟随一个在所有类别上的softmax操作，然后通过对所有像素的概率进行平均池化，得到整个RoI的检测分数。</li>
+<li>对于分割，在每个像素上使用softmax区分第一种和第二种情况，RoI的前景掩码（概率值）是每个像素对于每个类别的分割分数的并集。</li>
+<li>检测和分割这两个分数集合来自两个1x1卷积层。inside/outside分类器被联合训练，因为它们接收来自于分割和检测损失的梯度。</li>
+</ul>
+<center><img src="/images/FCIS/detail.png" width="90%"></center>
+
+<p>这种方法有许多可取的特性：每一个RoI组分没有自由参数；特征图是通过一个FCN产生的，没有涉及到特征的warping，缩放以及全连接层；所有的特征和分数图都遵守原始图像的高宽比；FCN的局部权重共享特性被保持并且作为一种正则化机制；所有的RoI计算是简单、快速的，甚至可以是忽略不计的。</p>
+<h2 id="An-End-to-End-Solution"><a href="#An-End-to-End-Solution" class="headerlink" title="An End to End Solution"></a>An End to End Solution</h2><p>FCIS使用ResNet-101，去掉最后用于分类的全连接层，只训练前面的卷积层，最后的特征图是2048通道的，通过1x1的卷积降维到1024。ResNet中，特征图分辨率的stride是32，对于实例分割来说太过粗略了。为了降低stride，使用了”hole algorithm”，conv5第一个block的stride从2降到1，所以最终特征stride为16。为了保持感受野，conv5所有的卷积层dilation都设置为2。</p>
+<p>下图是网络结构示意图：</p>
+<ul>
+<li>首先是基础网络提取特征，作者为了与其他方法公平比较，在conv4之后使用RPN生成RoIs。RPN也是全卷积的。</li>
+<li>使用1x1的卷积从conv5的特征图生成$2k^2(C+1)$的分数图：C类+1个背景；默认地，$k=7$，每一类2组分数图，每一组都是$k^2$个。因为最终的特征图相比原始图像缩小了16倍，因此在特征图上，每一个RoI相当于被投影进16倍小的区域中。</li>
+<li>并列的1x1的卷积层，通道数为$4k^2$，添加在conv5特征图后用来估计bounding box的偏移量。</li>
+<li>随后经过前面提到的联合公式，将每一组的$k^2$个分数图进行组合，得到最终的内/外分数图。</li>
+<li>最后对内/外分数图进行逐像素的softmax得到实例掩码；逐像素的max-&gt;softmax-&gt;平均池化-&gt;投票，得到RoI所属的类别。</li>
+</ul>
+<center><img src="/images/FCIS/network.png" width="90%"></center>
+
+<h3 id="Inference"><a href="#Inference" class="headerlink" title="Inference"></a>Inference</h3><ul>
+<li>对一张输入图像，RPN产生300个分数最高的RoI，然后它们通过bounding box分支产生精修过的新的300个RoI。对每一个RoI，最终得到它的分类分数和所有类别的前景掩码（概率）。</li>
+<li>使用IoU阈值为0.3的NMS，过滤重叠的RoI。剩下的按照最高的类别分数进行分类。</li>
+<li>前景的掩码通过掩码投票获得。具体来说，对一个RoI，从600个RoI中找到所有的与它IoU高于0.5的RoIs，根据像素对应的分类分数加权求平均，然后二值化作为输出。</li>
+</ul>
+<h3 id="Training"><a href="#Training" class="headerlink" title="Training"></a>Training</h3><ul>
+<li>正负样本：如果一个RoI的box与最近的ground truth的IoU大于0.5，则这个RoI为正样本，否则为负样本</li>
+<li>每个RoI有3项权重相等的损失：<ul>
+<li>C+1类的softmax检测损失</li>
+<li>softmax分割损失：ground truth和预测的前景掩码之间的损失，累加RoI所有像素上的损失然后通过RoI的尺寸进行标准化。</li>
+<li>bbox回归损失。后两项损失只计算正样本的。</li>
+</ul>
+</li>
+<li>训练图像缩放到短边为600。</li>
+<li>OHEM，每个mini-batch，一幅图像的300个RoI被进行前向传播，选择其中损失最高的128个RoI反向传播它们的误差梯度。</li>
+<li>对于RPN，默认使用9个anchor（3个尺度，3个高宽比）。COCO数据集多用3个anchor</li>
+<li>整个网络是联合训练的，实现特征共享</li>
+</ul>
+<h1 id="简评"><a href="#简评" class="headerlink" title="简评"></a>简评</h1><p>FCIS可以说是RPN + Position Sensitive ROI Pooling + Inside/Outside Score maps，将这几部分融合进一个网络，进行端到端的实例分割。主要的亮点就是 Inside/Outside分数图，将检测和分割两种任务关联了起来。</p>
+<h1 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h1><ol>
+<li><a href="https://arxiv.org/abs/1611.07709" target="_blank" rel="noopener">论文原文</a></li>
+<li><a href="http://url.cn/5j1Ptsi" target="_blank" rel="noopener">关于FCIS的PPT-非原作者</a></li>
+<li><a href="https://www.youtube.com/watch?v=cYqQzpnbnn4" target="_blank" rel="noopener">CVPR上的文章讲解</a></li>
+</ol>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/paper/" rel="tag"># paper</a>
+          
+            <a href="/tags/instance-segmentation/" rel="tag"># instance segmentation</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/05/25/FCN/" rel="next" title="FCN:Fully Convolutional Networks for Semantic Segmentation">
+                <i class="fa fa-chevron-left"></i> FCN:Fully Convolutional Networks for Semantic Segmentation
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/05/30/Transform-Invariance/" rel="prev" title="卷积神经网络为什么具有平移不变性？">
+                卷积神经网络为什么具有平移不变性？ <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/cat.jpg"
+                alt="Ting Zhang" />
+            
+              <p class="site-author-name" itemprop="name">Ting Zhang</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">22</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">2</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">8</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/zhangting2020" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:zhangting_2017@163.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Introduction"><span class="nav-number">1.</span> <span class="nav-text">Introduction</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Our-Approach"><span class="nav-number">2.</span> <span class="nav-text">Our Approach</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Position-sensitive-Score-Map-Parameterization"><span class="nav-number">2.1.</span> <span class="nav-text">Position sensitive Score Map Parameterization</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Joint-Mask-Prediction-and-Classification"><span class="nav-number">2.2.</span> <span class="nav-text">Joint Mask Prediction and Classification</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#An-End-to-End-Solution"><span class="nav-number">2.3.</span> <span class="nav-text">An End to End Solution</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Inference"><span class="nav-number">2.3.1.</span> <span class="nav-text">Inference</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Training"><span class="nav-number">2.3.2.</span> <span class="nav-text">Training</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#简评"><span class="nav-number">3.</span> <span class="nav-text">简评</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Reference"><span class="nav-number">4.</span> <span class="nav-text">Reference</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Ting Zhang</span>
+
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+          <span id="scrollpercent"><span>0</span>%</span>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+  
+</body>
+</html>
