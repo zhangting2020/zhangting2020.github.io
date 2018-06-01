@@ -66,7 +66,7 @@
 
 
 
-  <meta name="keywords" content="paper,object detection,instance segmentation," />
+  <meta name="keywords" content="object detection,paper,instance segmentation," />
 
 
 
@@ -78,7 +78,7 @@
 
 
 <meta name="description" content="这篇文章建立在Mask R-CNN上，提出了一种新的半监督训练和权重迁移方程。在类别数量很大的训练集上每个图像中的实例都有box标记，但是只有一小部分有掩码标记，这篇文章提出的方法可以在这样的数据集上训练实例分割模型。主要的贡献就是训练Mask R-CNN去检测和分割3000种实例，box标记使用Visual Genome数据集，掩码标记来自于COCO数据集的80个类别。">
-<meta name="keywords" content="paper,object detection,instance segmentation">
+<meta name="keywords" content="object detection,paper,instance segmentation">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Mask^X R-CNN:Learning to Segment Every Thing">
 <meta property="og:url" content="http://yoursite.com/2018/05/20/Mask-X-R-CNN/index.html">
@@ -386,7 +386,7 @@
                   <span class="post-meta-item-text">字数统计&#58;</span>
                 
                 <span title="字数统计">
-                  3,572
+                  3,564
                 </span>
               
 
@@ -439,24 +439,23 @@
 <center><img src="/images/Mask^X-R-CNN/network.png" width="70%"></center> 
 
 <p>本文不再独立地学习类别特定的bounding box参数和掩码参数，而是使用通用的、类别无关的权重迁移方程作为整个模型的一部分进行联合训练，从一个类别的bounding box参数去预测它的掩码参数。</p>
-<p>对于一个给定类别$c$，设$w_{det}^c$为bounding box head最后一层类别特定的目标检测权重，$w_{seg}^c$为掩码分支类别特定的掩码权重。与Mask R-CNN不同，这里掩码权重不再作为模型参数，而是使用一个通用的权重预测方程$\tau$来对它参数化：</p>
-<p>$$w_{seg}^c=\tau(w_{det}^c;\theta)$$</p>
-<p>这里$\theta$是类别无关的可学习参数。同一个迁移方程被用到任何其他类别上，因此$\theta$的设置应该使得迁移方程对训练过程中没有掩码的那些类别具有很好的泛化性能。作者在这里认为这种泛化是可能的，因为类别特定的检测权重$w_{det}^c$可以被视为这个类别的一种基于外观的视觉嵌入（Visual embeddings）。这里我个人并不是非常理解视觉嵌入相关的知识，有待挖掘。</p>
+<p>对于一个给定类别$c$，设$w<em>{det}^c$为bounding box head最后一层类别特定的目标检测权重，$w</em>{seg}^c$为掩码分支类别特定的掩码权重。与Mask R-CNN不同，这里掩码权重不再作为模型参数，而是使用一个通用的权重预测方程$\tau$来对它参数化：</p>
+<script type="math/tex; mode=display">w_{seg}^c=\tau(w_{det}^c;\theta)</script><p>这里$\theta$是类别无关的可学习参数。同一个迁移方程被用到任何其他类别上，因此$\theta$的设置应该使得迁移方程对训练过程中没有掩码的那些类别具有很好的泛化性能。作者在这里认为这种泛化是可能的，因为类别特定的检测权重$w_{det}^c$可以被视为这个类别的一种基于外观的视觉嵌入（Visual embeddings）。这里我个人并不是非常理解视觉嵌入相关的知识，有待挖掘。</p>
 <p>继续说这个迁移方程，它是用一个小的全连接神经网络实现的。下图阐明了权重迁移方程拟合Mask R-CNN到形成$Mask^X R-CNN$的过程，阴影部分是Mask R-CNN:</p>
 <ul>
 <li>前面与Mask R-CNN相同，图像输入给ConvNet，然后经过RPN和RoIAlign，而后是两个分支，box head和mask head</li>
-<li>不再单独地学习掩码参数$w_{seg}$，而是将它相应的box检测参数$w_{det}$输入给权重迁移方程，从而获得一个类别的掩码权重</li>
+<li>不再单独地学习掩码参数$w<em>{seg}$，而是将它相应的box检测参数$w</em>{det}$输入给权重迁移方程，从而获得一个类别的掩码权重</li>
 <li>对于训练，迁移方程只需要集合A中类别的掩码，但是在测试阶段，它可以应用在$A \bigcup B$的所有类别上</li>
 <li>使用一个互补的类别无关的全连接多层感知机（MLP）扩增了mask head，这其实与Mask R-CNN中的FCN mask head是一种互补，后面会解释这种互补。</li>
 </ul>
-<p>一个细节：bounding box head包含两种检测权重：RoI分类权重$w_{cls}^c$和bounding box回归权重$w_{box}^c$。这篇文章的实验只使用一种权重：$w_{det}^c=w_{cls}^c~or~w_{det}^c=w_{box}^c$，或者使用两种权重的拼接：$w_{det}^c=[w_{cls}^c,w_{box}^c]$。</p>
+<p>一个细节：bounding box head包含两种检测权重：RoI分类权重$w<em>{cls}^c$和bounding box回归权重$w</em>{box}^c$。这篇文章的实验只使用一种权重：$w<em>{det}^c=w</em>{cls}^c~or~w<em>{det}^c=w</em>{box}^c$，或者使用两种权重的拼接：$w<em>{det}^c=[w</em>{cls}^c,w_{box}^c]$。</p>
 <center><img src="/images/Mask^X-R-CNN/method.png" width="70%"></center> 
 
 <p><strong>说一下个人的理解</strong>：Mask R-CNN中做的是检测到一个box，然后利用类别特定的分割权重去预测这个box里实例的掩码。这两部分是并行分支，检测权重和分割权重都是类别特定的，分别编码了各自的特征空间，并且在监督学习下进行。在缺少某些类别的掩码标记时，就学习不到这个类别的掩码权重，从而无法预测到这类实例的掩码。这个问题在这篇文章中得到了很好的解决：作者加入一个小的全连接神经网络（迁移方程）打通了两个并行分支，学习的是这两种特征空间编码之间的映射，尽管分割任务的学习缺少某些类别的掩码标记，可是通过已有的数据，只要学习到这种映射关系，那么自然地就可以得到那些没有掩码标记的类别的分割权重。</p>
 <h2 id="Training"><a href="#Training" class="headerlink" title="Training"></a>Training</h2><p>训练bounding box head使用的是在$A \bigcup B$ 所有类别上的box 检测损失，但是只使用A中类别的掩码损失训练mask head。提出两种方案：</p>
 <ul>
 <li>逐阶段训练（stage-wise）：Mask R-CNN可以被看做是Faster R-CNN加一个掩码分支，因此分成检测训练和分割训练，第一个阶段只使用$A \bigcup B$中的bounding box标记训练Faster R-CNN；第二个阶段保持卷积特征和box head固定，训练mask head。这样的话，每一个类别特定的检测权重$w_{det}^c$可以被视为固定的类嵌入向量（class embedding vectors），它在训练的第二阶段不需要更新。</li>
-<li>端到端的联合训练：在Mask R-CNN中已经证明多任务训练比单独训练每一个任务会有更好的性能，前面提到的逐阶段训练方式可能会导致性能低下。理论上也可以直接使用两个集合的box损失和集合A的掩码损失，进行反向传播，然而这也许会导致在集合A与B之间类别特定的检测权重会有差异性。因为对于一个类别$c$如果它属于A，只有$w_{det}^c$会接收到掩码损失经过权重迁移方程回传的梯度。也就是说，A中那些类别的检测权重既能接收到bounding box损失的梯度，又能接收到掩码损失的梯度；而B中那些类别的检测权重只能收到bounding box损失的梯度。但是目的是要在两个集合之间得到同样的检测权重，从而使得在集合A上训练的类别特定的分割权重$w_{seg}^c$很好地泛化到集合B。因此采取了一个简单的方法：在反向传播掩码损失时，阻止关于$w_{det}^c$的梯度，也就是说，回传掩码损失的梯度时，只计算预测掩码权重关于迁移方程参数$\theta$的梯度，而不计算关于$w_{det}^c$的梯度：$w_{seg}^c=\tau(StopGrad(w_{det}^c);\theta)$。</li>
+<li>端到端的联合训练：在Mask R-CNN中已经证明多任务训练比单独训练每一个任务会有更好的性能，前面提到的逐阶段训练方式可能会导致性能低下。理论上也可以直接使用两个集合的box损失和集合A的掩码损失，进行反向传播，然而这也许会导致在集合A与B之间类别特定的检测权重会有差异性。因为对于一个类别$c$如果它属于A，只有$w<em>{det}^c$会接收到掩码损失经过权重迁移方程回传的梯度。也就是说，A中那些类别的检测权重既能接收到bounding box损失的梯度，又能接收到掩码损失的梯度；而B中那些类别的检测权重只能收到bounding box损失的梯度。但是目的是要在两个集合之间得到同样的检测权重，从而使得在集合A上训练的类别特定的分割权重$w</em>{seg}^c$很好地泛化到集合B。因此采取了一个简单的方法：在反向传播掩码损失时，阻止关于$w<em>{det}^c$的梯度，也就是说，回传掩码损失的梯度时，只计算预测掩码权重关于迁移方程参数$\theta$的梯度，而不计算关于$w</em>{det}^c$的梯度：$w<em>{seg}^c=\tau(StopGrad(w</em>{det}^c);\theta)$。</li>
 </ul>
 <h2 id="Extension-Fused-FCN-MLP-Mask-Heads"><a href="#Extension-Fused-FCN-MLP-Mask-Heads" class="headerlink" title="Extension: Fused FCN+MLP Mask Heads"></a>Extension: Fused FCN+MLP Mask Heads</h2><p>在Mask R-CNN中使用类别无关的FCN head，将其作为baseline。</p>
 <p>Mask R-CNN中考虑了两种mask head：一是FCN head，使用全卷积网络预测MxM的掩码；二是MLP head，使用全连接层组成的多层感知机预测掩码，这点与DeepMask更相似。在Mask R-CNN中，FCN head具有更高的mask AP值，然而这两种设计可能是互补的。直觉上，<strong>MLP掩码预测也许更好地捕获了目标的“要点”（全局），而FCN掩码预测也许更好地捕获了目标的细节（局部）</strong>，比如目标边界。基础这样的观察，提出一种改进，将类别无关的FCN和权重迁移方程以及类别无关的MLP掩码预测融合。</p>
@@ -499,9 +498,9 @@ gitment.render('container')
       
         <div class="post-tags">
           
-            <a href="/tags/paper/" rel="tag"># paper</a>
-          
             <a href="/tags/object-detection/" rel="tag"># object detection</a>
+          
+            <a href="/tags/paper/" rel="tag"># paper</a>
           
             <a href="/tags/instance-segmentation/" rel="tag"># instance segmentation</a>
           
@@ -609,7 +608,7 @@ gitment.render('container')
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">23</span>
+                  <span class="site-state-item-count">24</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -620,7 +619,7 @@ gitment.render('container')
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">2</span>
+                  <span class="site-state-item-count">3</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>
@@ -631,7 +630,7 @@ gitment.render('container')
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">8</span>
+                  <span class="site-state-item-count">9</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>

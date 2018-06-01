@@ -66,7 +66,7 @@
 
 
 
-  <meta name="keywords" content="paper,object detection,instance segmentation," />
+  <meta name="keywords" content="object detection,paper,instance segmentation," />
 
 
 
@@ -78,7 +78,7 @@
 
 
 <meta name="description" content="这篇论文提出了一种概念简单，灵活且通用的目标实例分割框架，在检测出图像中目标的同时，生成每一个实例的掩码（mask）。对Faster R-CNN进行扩展，通过添加与已存在的bounding box回归平行的一个分支，预测目标掩码，因而称为Mask R-CNN。这种框架训练简单，容易应用到其他任务，比如目标检测，人体关键点检测。">
-<meta name="keywords" content="paper,object detection,instance segmentation">
+<meta name="keywords" content="object detection,paper,instance segmentation">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Mask-R-CNN">
 <meta property="og:url" content="http://yoursite.com/2018/05/06/Mask-R-CNN/index.html">
@@ -389,7 +389,7 @@
                   <span class="post-meta-item-text">字数统计&#58;</span>
                 
                 <span title="字数统计">
-                  2,255
+                  2,248
                 </span>
               
 
@@ -434,7 +434,7 @@
 <p>首先回归一下<code>Faster R-CNN</code>：它包含两个阶段，第一阶段使用<code>RPN</code>提取候选的目标<code>bounding box</code>，第二阶段本质上是<code>Fast R-CNN</code>，使用<code>RoI pooling</code>从候选区域中提取特征，实现分类并得到最终的<code>bounding box</code>。</p>
 <p><code>Mask R-CNN</code>也是两个阶段：第一阶段与<code>Faster R-CNN</code>相同，<code>RPN</code>提取候选目标<code>bounding box</code>；第二阶段，除了并行地预测类别和候选框偏移，还输出每一个<code>RoI</code>的二值掩码（<code>binary mask</code>）。</p>
 <h2 id="损失函数"><a href="#损失函数" class="headerlink" title="损失函数"></a>损失函数</h2><ul>
-<li>多任务损失：$$L=L_{cls}+L_{box}+L_{mask}$$ 掩码分支对每一个感兴趣区域产生$Km^2$维的输出，<code>K</code>是类别数目，<code>K</code>个分辨率为<code>m×m</code>的二值掩码也就是针对每一个类别产生了一个掩码。</li>
+<li>多任务损失：<script type="math/tex">L=L_{cls}+L_{box}+L_{mask}</script> 掩码分支对每一个感兴趣区域产生$Km^2$维的输出，<code>K</code>是类别数目，<code>K</code>个分辨率为<code>m×m</code>的二值掩码也就是针对每一个类别产生了一个掩码。</li>
 <li>对每一个像素应用<code>sigmoid</code>，所以掩码损失就是平均二分类交叉熵损失。如果一个<code>RoI</code>对应的<code>ground truth</code>是第<code>k</code>类，那么计算掩码损失时，只考虑第<code>k</code>个掩码，其他类的掩码对损失没有贡献。</li>
 <li>掩码损失的定义允许网络为每个类别独立预测二值掩码。使用专门的分类分支去预测类别标签，类别标签用来选择输出掩码。</li>
 </ul>
@@ -452,12 +452,14 @@
 <center><img src="/images/Mask-R-CNN/translation.png" width="50%"></center>
 
 <p>在<code>Faster R-CNN</code>中，提取一张完整图像的<code>feature map</code>，输入<code>RPN</code>里提取<code>proposal</code>，在进行<code>RoI pooling</code>前，要根据<code>RPN</code>给出的<code>proposal</code>信息在基础网络提取出的整个<code>feature map</code>上找到每个<code>proposal</code>对应的那一块<code>feature map</code>，具体的做法是：根据<code>RPN</code>给出的边框回归坐标，除以尺度因子<code>16</code>，因为<code>vgg16</code>基础网络四次池化缩放了<code>16</code>倍。这里必然会造成坐标计算会出现浮点数，而<code>Faster R-CNN</code>里对这个是进行了舍入，这是一次对平移同变性的破坏；同样的问题出现在后面的<code>RoI pooling</code>中，因为要得到固定尺寸的输出，所以对<code>RoI</code>对应的那块<code>feature map</code>划分了网格，也会出现划分时，对宽高做除法出现浮点数，这里和前面一样，简单粗暴地进行了舍入操作，这是第二次对平移同变性的破坏。如下图，网格的划分是不均匀的：</p>
-<center><img src="/images/Mask-R-CNN/RoIPool.png" width="60%"></center><br><center><img src="/images/Mask-R-CNN/RoIPooling.png" width="60%"></center>
+<center><img src="/images/Mask-R-CNN/RoIPool.png" width="60%"></center>
+<center><img src="/images/Mask-R-CNN/RoIPooling.png" width="60%"></center>
 
 <p>总之，<code>Faster R-CNN</code>破坏了像素到像素之间的这种平移同变性。<code>RoI Align</code>就是要在<code>RoI</code>之前和之后保持这种平移同变性，避免对<code>RoI</code>边界和里面的网格做量化。如下图：</p>
 <ul>
 <li>针对输入的<code>feature map</code>找到对应的<code>RoI</code>，是通过$x/16$而不是像<code>Faster R-CNN</code>中$[x/16]$，$[\cdot]$代表舍入操作。所以可以看到第一幅图中<code>RoI</code>并没有落在整数的坐标上。</li>
-<li>对<code>RoI</code>划分为<code>2x2</code>的网格（根据输出要求），每个小的网格里采样<code>4</code>个点，使用双线性插值根据临近的网格点计算这<code>4</code>个点的值，最后再对每一个网格进行最大池化或平均池化得到最终<code>2x2</code>的输出。<center><img src="/images/Mask-R-CNN/RoIAlign2.png" width="60%"></center><br><center><img src="/images/Mask-R-CNN/RoIAlign.png" width="90%"></center>
+<li>对<code>RoI</code>划分为<code>2x2</code>的网格（根据输出要求），每个小的网格里采样<code>4</code>个点，使用双线性插值根据临近的网格点计算这<code>4</code>个点的值，最后再对每一个网格进行最大池化或平均池化得到最终<code>2x2</code>的输出。<center><img src="/images/Mask-R-CNN/RoIAlign2.png" width="60%"></center>
+<center><img src="/images/Mask-R-CNN/RoIAlign.png" width="90%"></center>
 
 </li>
 </ul>
@@ -507,9 +509,9 @@ gitment.render('container')
       
         <div class="post-tags">
           
-            <a href="/tags/paper/" rel="tag"># paper</a>
-          
             <a href="/tags/object-detection/" rel="tag"># object detection</a>
+          
+            <a href="/tags/paper/" rel="tag"># paper</a>
           
             <a href="/tags/instance-segmentation/" rel="tag"># instance segmentation</a>
           
@@ -617,7 +619,7 @@ gitment.render('container')
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">23</span>
+                  <span class="site-state-item-count">24</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -628,7 +630,7 @@ gitment.render('container')
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">2</span>
+                  <span class="site-state-item-count">3</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>
@@ -639,7 +641,7 @@ gitment.render('container')
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">8</span>
+                  <span class="site-state-item-count">9</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>
