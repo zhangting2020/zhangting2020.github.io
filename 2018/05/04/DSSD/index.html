@@ -92,7 +92,7 @@
 <meta property="og:image" content="http://yoursite.com/images/DSSD/Deconvolution.png">
 <meta property="og:image" content="http://yoursite.com/images/DSSD/table1.png">
 <meta property="og:image" content="http://yoursite.com/images/DSSD/table3.png">
-<meta property="og:updated_time" content="2018-05-30T14:12:50.545Z">
+<meta property="og:updated_time" content="2018-06-01T05:03:39.995Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="DSSD:Deconvolutional Single Shot Detector">
 <meta name="twitter:description" content="这篇文章将额外的上下文信息引入到目标检测中，首先将ResNet-101和SSD组合，，然后利用反卷积层扩增这个组合的网络，为目标检测引入大尺度的上下文信息，提高准确率，特别是对小目标的检测。Deconvolutional single shot detector，因此简称DSSD。实验结果比R-FCN要好。">
@@ -467,6 +467,21 @@
 <li>移除了变量相关的BN层，第一个式子概括为$$y = \hat wx + \hat b$$</li>
 </ul>
 <p><strong>DSSD因为使用了更深的基础网络，预测模块和反卷积层，以及更多的默认框，所以速度自然比SSD慢</strong>。作者提到一种加速DSSD的方式是使用简单的双线性插值上采样替代反卷积层。</p>
+<p><div id="container"></div></p>
+<p><link rel="stylesheet" href="https://imsun.github.io/gitment/style/default.css"></p>
+<script src="https://imsun.github.io/gitment/dist/gitment.browser.js"></script>
+<script>
+var gitment = new Gitment({
+  id: '页面 ID', // 可选。默认为 location.href  比如我本人的就删除了
+  owner: 'zhangting2020',              //比如我的叫anTtutu
+  repo: 'GitComment',                 //比如我的叫anTtutu.github.io
+  oauth: {
+    client_id: '60737b1014bda221b290',          //比如我的828***********
+    client_secret: 'ce34df0ac4253419bfaa84df9363844ed0e6f9b8',  //比如我的49e************************
+  },
+})
+gitment.render('container')
+</script>
 
       
     </div>

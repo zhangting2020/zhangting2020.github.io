@@ -88,7 +88,7 @@
 <meta property="og:image" content="http://yoursite.com/images/FaceNet/FaceNet.png">
 <meta property="og:image" content="http://yoursite.com/images/FaceNet/architecture.png">
 <meta property="og:image" content="http://yoursite.com/images/FaceNet/TripletLoss.png">
-<meta property="og:updated_time" content="2018-05-30T14:13:03.821Z">
+<meta property="og:updated_time" content="2018-06-01T05:03:30.063Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="FaceNet:A Unified Embedding for Face Recognition and Clustering">
 <meta name="twitter:description" content="这篇文章是Google发表在CVPR2015上的文章，提出了FaceNet直接学习人脸图像到一个紧凑的欧氏空间的映射，空间距离直接对应于面部相似度的测量。主要的创新点就是提出使用triplet loss，并且得到的是128维的特征。在LFW数据集上达到了99.63%的准确率，在YouTube Faces DB达到了95.12%的准确率。">
@@ -444,6 +444,21 @@
 <p>文章中说选择最难的负样本会导致在训练早期得到局部最优解，因此不选择最难的负样本，而是选择较难的（<code>semi-hard</code>），也就是说负样本比正样本远离<code>anchor</code>，同时<code>anchor-negtative</code>的距离接近<code>anchor-postive</code>的距离。</p>
 <p>生成三元组时，每个<code>mini-batch</code>中对每个身份选择<code>40</code>个人脸，并且随机采样一些负样本人脸。文中<code>mini-batch</code>是<code>1800</code>个样本。</p>
 <p>训练时使用<code>SGD</code>和<code>AdaGrad</code>优化。学习率开始设为<code>0.05</code>，$\alpha$设为<code>0.02</code>。好吧，模型随机初始化，以超强的自信心在<code>CPU</code>集群上丧心病狂地训练了<code>1000~2000</code>小时，也就是<code>41~83</code>天。训练了<code>500</code>个小时后，<code>loss</code>和准确率的变化才减慢。</p>
+<p><div id="container"></div></p>
+<p><link rel="stylesheet" href="https://imsun.github.io/gitment/style/default.css"></p>
+<script src="https://imsun.github.io/gitment/dist/gitment.browser.js"></script>
+<script>
+var gitment = new Gitment({
+  id: '页面 ID', // 可选。默认为 location.href  比如我本人的就删除了
+  owner: 'zhangting2020',              //比如我的叫anTtutu
+  repo: 'GitComment',                 //比如我的叫anTtutu.github.io
+  oauth: {
+    client_id: '60737b1014bda221b290',          //比如我的828***********
+    client_secret: 'ce34df0ac4253419bfaa84df9363844ed0e6f9b8',  //比如我的49e************************
+  },
+})
+gitment.render('container')
+</script>
 
       
     </div>

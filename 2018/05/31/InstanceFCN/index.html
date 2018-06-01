@@ -90,7 +90,7 @@
 <meta property="og:image" content="http://yoursite.com/images/InstanceFCN/coherence.png">
 <meta property="og:image" content="http://yoursite.com/images/InstanceFCN/network.png">
 <meta property="og:image" content="http://yoursite.com/images/InstanceFCN/result.png">
-<meta property="og:updated_time" content="2018-05-31T14:43:52.432Z">
+<meta property="og:updated_time" content="2018-06-01T05:01:56.843Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="InstanceFCN:Instance-sensitive Fully Convolutional Networks">
 <meta name="twitter:description" content="这篇文章发表于2016年，提出了一种全卷积网络，可以计算一组实例敏感的分数图，每一个分数图都是实例中一个相对位置上每个像素分类的结果。之后实例敏感的分数图经过一个简单的组合模块，输出每一个位置的候选实例。">
@@ -387,7 +387,7 @@
                   <span class="post-meta-item-text">字数统计&#58;</span>
                 
                 <span title="字数统计">
-                  2,054
+                  2,056
                 </span>
               
 
@@ -440,7 +440,7 @@
 <center><img src="/images/InstanceFCN/network.png" width="80%"></center>
 
 <h3 id="Training"><a href="#Training" class="headerlink" title="Training"></a>Training</h3><p>网络是端到端进行训练的，前向传播中，计算一组实例敏感的分数图以及目标分数图，之后，采样256个滑动窗，从这些滑动窗中组合实例用于计算损失函数，损失函数定义如下：</p>
-<p>$$\sum_i(L(p_i, p_i^<em>) + \sum_j L(S_{i,j}, S_{i,j}^</em>))$$</p>
+<p>$$\sum_i(L(p_i, p^*_i) + \sum_j L(S_{i,j}, S^*_{i,j}))$$</p>
 <p>其中，$i$是采样窗口的索引，$p_i$是窗口中实例的预测分数，如果窗口中是正样本，那么这个分数就为1，否则为0。$S_i$是窗口中组合的分割实例，$S_i^*$是分割实例的ground truth，$j$是窗口中像素的索引，$L$是逻辑回归损失。256个采样窗口中，正负样本比例是1:1。</p>
 <h3 id="Inference"><a href="#Inference" class="headerlink" title="Inference"></a>Inference</h3><p>推断过程就是对输入图像生成实例敏感分数图以及目标分数图，之后组合模块通过在分数图上应用滑动窗产生每一个位置的分割实例。每一个实例与目标分数图中的一个分数相关联。在多尺度问题上， 是把图像缩放到不同尺度，然后计算每一个尺度上的实例。最终得到的是二值掩码，应用NMS生成最后的分割proposal。</p>
 <h1 id="Experiments"><a href="#Experiments" class="headerlink" title="Experiments"></a>Experiments</h1><p>定量分析可以参考论文，这里展示一些效果图。</p>

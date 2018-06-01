@@ -88,7 +88,7 @@
 <meta property="og:image" content="http://yoursite.com/images/YOLOv3/network.png">
 <meta property="og:image" content="http://yoursite.com/images/YOLOv3/Darknet-53.png">
 <meta property="og:image" content="http://yoursite.com/images/YOLOv3/table.png">
-<meta property="og:updated_time" content="2018-05-30T14:15:50.207Z">
+<meta property="og:updated_time" content="2018-06-01T04:58:46.835Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="YOLOv3:An Incremental Improvement">
 <meta name="twitter:description" content="这篇文章发表于2018年，比YOLOv2网络更大，但是更精确。在320x320的分辨率下，YOLOv3处理一幅图需要22ms，mAP为28.2，与SSD一样精确但是快3倍。主要的创新点有3个：类别预测上不再使用softmax而是使用独立的logistic回归，能实现多标签预测；类似于FPN，实现多尺度预测，将不同层的特征做了融合；提出更好的基础网络，加入残差块。">
@@ -453,6 +453,22 @@
 <li><a href="https://blog.csdn.net/l7H9JA4/article/details/79955903" target="_blank" rel="noopener">目标检测|YOLOv2原理与实现(附YOLOv3)</a></li>
 <li><a href="https://pjreddie.com/darknet/yolo/" target="_blank" rel="noopener">YOLOv3项目主页</a></li>
 </ol>
+<p><div id="container"></div></p>
+<p><link rel="stylesheet" href="https://imsun.github.io/gitment/style/default.css"></p>
+<script src="https://imsun.github.io/gitment/dist/gitment.browser.js"></script>
+<script>
+var gitment = new Gitment({
+  id: '页面 ID', // 可选。默认为 location.href  比如我本人的就删除了
+  owner: 'zhangting2020',              //比如我的叫anTtutu
+  repo: 'GitComment',                 //比如我的叫anTtutu.github.io
+  oauth: {
+    client_id: '60737b1014bda221b290',          //比如我的828***********
+    client_secret: 'ce34df0ac4253419bfaa84df9363844ed0e6f9b8',  //比如我的49e************************
+  },
+})
+gitment.render('container')
+</script>
+
 
       
     </div>

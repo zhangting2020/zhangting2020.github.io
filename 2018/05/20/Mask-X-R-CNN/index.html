@@ -89,7 +89,7 @@
 <meta property="og:image" content="http://yoursite.com/images/Mask%5EX-R-CNN/network.png">
 <meta property="og:image" content="http://yoursite.com/images/Mask%5EX-R-CNN/method.png">
 <meta property="og:image" content="http://yoursite.com/images/Mask%5EX-R-CNN/table.png">
-<meta property="og:updated_time" content="2018-05-30T14:14:22.686Z">
+<meta property="og:updated_time" content="2018-06-01T05:01:10.279Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Mask^X R-CNN:Learning to Segment Every Thing">
 <meta name="twitter:description" content="这篇文章建立在Mask R-CNN上，提出了一种新的半监督训练和权重迁移方程。在类别数量很大的训练集上每个图像中的实例都有box标记，但是只有一小部分有掩码标记，这篇文章提出的方法可以在这样的数据集上训练实例分割模型。主要的贡献就是训练Mask R-CNN去检测和分割3000种实例，box标记使用Visual Genome数据集，掩码标记来自于COCO数据集的80个类别。">
@@ -467,6 +467,21 @@
 <h1 id="Large-Scale-Instance-Segmentation"><a href="#Large-Scale-Instance-Segmentation" class="headerlink" title="Large-Scale Instance Segmentation"></a>Large-Scale Instance Segmentation</h1><p>$Mask^X R-CNN$模型的训练，使用VG数据集，包含108077张图像，超过7000类同义词集合，标记了bounding box，但是没有掩码。训练中，选择3000个最常见的同义词集合作为类别集合$A \bigcup B$用来实例分割，它覆盖了COCO中的80个类别。因为这两个数据集有大量的重叠，因此在VG上训练时只采用没有在COCOval2017中出现的那些，VG中剩下的图像作为验证集。把VG中与COCO重叠的80个类作为集合A，带有掩码标记；剩下的2920个类别作为集合B，只有bounding box。</p>
 <p>作者最终训练出了一个可以分割3000类实例的$Mask^X R-CNN$，如题“Learning to Segment Every Thing”。</p>
 <h1 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h1><p>1.<a href="https://arxiv.org/pdf/1711.10370.pdf" target="_blank" rel="noopener">Learning to Segment Every Thing</a></p>
+<p><div id="container"></div></p>
+<p><link rel="stylesheet" href="https://imsun.github.io/gitment/style/default.css"></p>
+<script src="https://imsun.github.io/gitment/dist/gitment.browser.js"></script>
+<script>
+var gitment = new Gitment({
+  id: '页面 ID', // 可选。默认为 location.href  比如我本人的就删除了
+  owner: 'zhangting2020',              //比如我的叫anTtutu
+  repo: 'GitComment',                 //比如我的叫anTtutu.github.io
+  oauth: {
+    client_id: '60737b1014bda221b290',          //比如我的828***********
+    client_secret: 'ce34df0ac4253419bfaa84df9363844ed0e6f9b8',  //比如我的49e************************
+  },
+})
+gitment.render('container')
+</script>
 
       
     </div>
