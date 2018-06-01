@@ -88,7 +88,7 @@
 <meta property="og:image" content="http://yoursite.com/images/SSD/Framework.png">
 <meta property="og:image" content="http://yoursite.com/images/SSD/SSDandYOLO.png">
 <meta property="og:image" content="http://yoursite.com/images/SSD/result.png">
-<meta property="og:updated_time" content="2018-06-01T04:59:56.543Z">
+<meta property="og:updated_time" content="2018-06-01T07:01:17.940Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="SSD:Single Shot MultiBox Detector">
 <meta name="twitter:description" content="这篇文章发表在ECCV2016上，在既保证速度，又要保证精度的情况下，提出了SSD。使用single deep neural network，便于训练与优化，同时提高检测速度。SSD将bounding box的输出空间离散化为一组默认框，这些默认框在feature map每个位置有不同的高宽比和尺度。在预测时，网络对每一个默认框中存在的目标生成类别分数，并且调整边界框以更好地匹配目标形状。除此之">
@@ -458,7 +458,7 @@
 <script src="https://imsun.github.io/gitment/dist/gitment.browser.js"></script>
 <script>
 var gitment = new Gitment({
-  id: '页面 ID', // 可选。默认为 location.href  比如我本人的就删除了
+  id: '<%= page.date %>', // 可选。默认为 location.href  比如我本人的就删除了
   owner: 'zhangting2020',              //比如我的叫anTtutu
   repo: 'GitComment',                 //比如我的叫anTtutu.github.io
   oauth: {

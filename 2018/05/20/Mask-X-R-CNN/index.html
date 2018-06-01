@@ -89,7 +89,7 @@
 <meta property="og:image" content="http://yoursite.com/images/Mask%5EX-R-CNN/network.png">
 <meta property="og:image" content="http://yoursite.com/images/Mask%5EX-R-CNN/method.png">
 <meta property="og:image" content="http://yoursite.com/images/Mask%5EX-R-CNN/table.png">
-<meta property="og:updated_time" content="2018-06-01T05:01:10.279Z">
+<meta property="og:updated_time" content="2018-06-01T06:46:56.608Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Mask^X R-CNN:Learning to Segment Every Thing">
 <meta name="twitter:description" content="这篇文章建立在Mask R-CNN上，提出了一种新的半监督训练和权重迁移方程。在类别数量很大的训练集上每个图像中的实例都有box标记，但是只有一小部分有掩码标记，这篇文章提出的方法可以在这样的数据集上训练实例分割模型。主要的贡献就是训练Mask R-CNN去检测和分割3000种实例，box标记使用Visual Genome数据集，掩码标记来自于COCO数据集的80个类别。">
@@ -472,7 +472,7 @@
 <script src="https://imsun.github.io/gitment/dist/gitment.browser.js"></script>
 <script>
 var gitment = new Gitment({
-  id: '页面 ID', // 可选。默认为 location.href  比如我本人的就删除了
+  id: '<%= page.date %>', // 可选。默认为 location.href  比如我本人的就删除了
   owner: 'zhangting2020',              //比如我的叫anTtutu
   repo: 'GitComment',                 //比如我的叫anTtutu.github.io
   oauth: {
