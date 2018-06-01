@@ -90,7 +90,7 @@
 <meta property="og:image" content="http://yoursite.com/images/InstanceFCN/coherence.png">
 <meta property="og:image" content="http://yoursite.com/images/InstanceFCN/network.png">
 <meta property="og:image" content="http://yoursite.com/images/InstanceFCN/result.png">
-<meta property="og:updated_time" content="2018-06-01T06:46:43.432Z">
+<meta property="og:updated_time" content="2018-06-01T07:12:05.290Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="InstanceFCN:Instance-sensitive Fully Convolutional Networks">
 <meta name="twitter:description" content="这篇文章发表于2016年，提出了一种全卷积网络，可以计算一组实例敏感的分数图，每一个分数图都是实例中一个相对位置上每个像素分类的结果。之后实例敏感的分数图经过一个简单的组合模块，输出每一个位置的候选实例。">
@@ -387,7 +387,7 @@
                   <span class="post-meta-item-text">字数统计&#58;</span>
                 
                 <span title="字数统计">
-                  2,056
+                  2,053
                 </span>
               
 
@@ -446,7 +446,7 @@
 <h1 id="Experiments"><a href="#Experiments" class="headerlink" title="Experiments"></a>Experiments</h1><p>定量分析可以参考论文，这里展示一些效果图。</p>
 <center><img src="/images/InstanceFCN/result.png" width="70%"></center>
 
-<h1 id="简评"><a href="#简评" class="headerlink" title="简评"></a>简评</h1><p>主要的关键点在于实例敏感的分数图，其实个人感觉就是R-FCN中提到的位置敏感分数图，但是R-FCN是在这篇文章之后出的。之所以可以使用这些分数图解决实例分割问题，是因为同一个像素点，如果它在实例中的相对位置的不同，那么它将会对应着不同编号的分数图，所以它在不同的实例中，有着不同的语义。总之，这是一个很好的思路，不过作者所说的端对端仅仅是针对分割proposal而言的，如果要得到实例的类别，其实是需要后续的网络处理的，这两个任务之间是分离的。之后作者又出了一篇FCIS，与这篇文章不同的是，FCIS是RPN+Position Sensitive ROI Pooling + Inside/Outside Score maps ，因为这2种分数图的联合，使得分割与检测同步进行，整个网络是端对端的。</p>
+<h1 id="简评"><a href="#简评" class="headerlink" title="简评"></a>简评</h1><p>主要的关键点在于实例敏感的分数图，其实类似与R-FCN中提到的位置敏感分数图，但是R-FCN是在这篇文章之后出的。之所以可以使用这些分数图解决实例分割问题，是因为同一个像素点，如果它在实例中的相对位置的不同，那么它将会对应着不同编号的分数图，所以它在不同的实例中，有着不同的语义。总之，这是一个很好的思路，不过作者所说的端对端仅仅是针对分割proposal而言的，如果要得到实例的类别，其实是需要后续的网络处理的，这两个任务之间是分离的。之后作者又出了一篇FCIS，与这篇文章不同的是，FCIS是RPN+Position Sensitive ROI Pooling + Inside/Outside Score maps ，因为这2种分数图的联合，使得分割与检测同步进行，整个网络是端对端的。</p>
 <h1 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h1><ol>
 <li><a href="https://arxiv.org/abs/1603.08678" target="_blank" rel="noopener">论文原文</a></li>
 </ol>
