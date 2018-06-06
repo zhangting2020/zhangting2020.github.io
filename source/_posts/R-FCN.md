@@ -1,0 +1,73 @@
+---
+title: R-FCN:Object Detection via Region-based Fully Convolutional Networks
+date: 2018-04-15 11:28:26
+categories: CNN
+tags: 
+  - object detection
+  - paper
+image: /images/R-FCN/overview.png
+---
+> 这篇文章发表在`CVPR2016`上，提出位置敏感分数图（`position-sensitive score map`）去权衡图像分类中的平移不变性和目标检测中的平移变换性这种两难的境地。
+<!-- more -->
+
+# Introduction
+比较流行的关于目标检测的深度网络可以通过`ROI pooling layer`分成两个子网络：
+- `a shared, “fully convolutional” subnetwork independent of RoIs`.（独立于`ROI`的共享的、全卷积的子网络）
+- `an RoI-wise subnetwork that does not share computation`.（不共享计算的`ROI-wise`（作用于各自`RoI`的）子网络）
+
+工程上的图像分类结构（如`Alexnet`和`VGG Nets`）被设计为两个子网络——`1`个卷积子网络后面跟随`1`个空间池化层和多个全连接层。因此，图像分类网络中最后的空间池化层自然变成了目标检测网络中的`RoI`池化层。
+
+目前最好的图像分类网络，例如残差网络（`ResNets`）和`GoogleNets`都是用`fully convolutional`设计的。在目标检测中都使用卷积层去构建一个共享的卷积网络是一件十分自然的事。但是这种简单的方法分类效果很好，检测效果却很差。为了解决这个问题，`ResNet`文中`Faster R-CNN`的`RoI pooling layer`被不自然地插入在两个卷积层之间，这创建出一个更深的`RoI-wise`子网络，改善了精度，但是各个`RoI`计算不共享所以速度慢。
+
+**图像分类任务更加喜欢平移不变性，图像中目标的移动不应该被区分看待。因此具有平移不变性的全卷积网络结构在分类上表现更佳。另一方面，目标检测需要一定程度上具有平移变化的定位表达。在一个候选框中目标的平移应该产生有意义的响应，这种响应可以描述候选框与目标重合的好坏程度**。
+
+这篇文章提出了基于区域的全卷积网络 (`R-FCN`)，为给`FCN`引入平移变化，**用一组专门的卷积层构建位置敏感分数图 (`position-sensitive score maps`)。每个位置敏感的`score map`编码感兴趣区域的相对空间位置信息**。在`FCN`顶部增加`1`个位置敏感的`RoI pooling layer`来监管这些分数图，这个层后面没有卷积或全连接层。
+
+
+
+# R-FCN
+## Overview
+网络采用`ResNet-101`作为基础网络产生`feature map`，之后使用`Faster R-CNN`中的`RPN`提取候选区域，`RPN`本身就是全卷积网络，`RPN`和`R-FCN`之间共享特征。在`R-FCN`中，所有可以学习的权重层都是卷积层，并且是在整幅图上计算的。**整个流程可以简单概括为：输入图像->基础网络提取`feature map`->专门的卷积层提取位置敏感的`score map`->位置敏感的`RoI pooling`->对结果投票（取平均）进而得到预测结果**
+<center><img src="/images/R-FCN/overview.png" width="80%"/></center>
+
+- 首先输入图像经过基础网络得到整张图像的`feature map`，然后`RPN`给出`RoIs`。
+- 得到`feature map`后，再经过最后一个卷积层，使用$k^2(C+1)$个卷积核为每一个类别产生$k^2$个`position-sensitive score maps`，所以对于`C`类的目标再加上一个背景类，输出层的通道数为：$k^2(C+1)$。
+- $k^2$个`score map`与`k×k`个空间网格相对应。网格描述了相对空间位置，例如`k=3`，则对应`9`个位置（左上，左中，...右下）。
+- `R-FCN`的最后是位置敏感的`RoI`池化层（`position-sensitive RoI pooling layer`）。这一层聚合上一个卷积层的输出，并且为每一个`RoI`生成得分，根据得分对这些感兴趣区域分类。
+
+**位置敏感的`RoI`池化是选择性池化**：`k=3`，对每个类别生成了`9`个`score map`，每一个`score map`的通道是`21`。
+- 将`RoI`对应的`9x21`通道的`score map`取出，每一个`score map`都对应了一个空间位置，共`9`个空间位置。但这里并不是对`RoI`对应的每一个`score map`进行池化，然后将结果组合，而是将`RoI`对应的那块`score map`划分为`3x3`的网格。（`Fast R-CNN`里的`RoI pooling`也是将`feature map`划分为网格）
+- 从每个`score map`对应的空间位置上只取出一个小网格进行池化（文中使用的是平均池化，但最大池化也没问题）。例如下图中最后得到了`3x3`的`feature map`，其左上角（其实只是一个数值）黄色的部分就是对前一层第一个黄色的`score map`中`RoI`里`3x3`的网格中的左上角网格进行池化的结果。所以最后的`feature map`其实每一个位置的元素都是从前一层负责这个空间位置的`score map`里该空间位置的网格池化得来的。对所有的`score map`这样操作，再聚合起来就得到最后的`k×kx(C+1)`的`feature map`。
+- 所有颜色的小方块就是一些位置敏感的分数，然后这些分数在`RoI`上投票（文中是取平均）得到一个`C+1`维的响应，之后使用`softmax`计算类别的得分判断是哪一类目标。
+<center><img src="/images/R-FCN/architecture.png" width="80%"/></center>
+
+上述就完成了目标分类，回归位置采用的是相似的做法，在生成`score map`的最后一个卷积层处，也同时进行了另一路卷积，生成$4k^2$的`feature map`用于`bounding box`回归；然后针对每一个`RoI`使用位置敏感的`RoI pooling`通过平均池化产生`4-d`的向量。这里实际上是类别无关的位置回归，实际上也可以通过产生$4k^2(C+1)$的`feature map`得到类别特定的位置回归。
+
+下图是可视化结果：如果一个候选框精确地与目标重合，$k^2$个`bin`中大多数都会被强烈地激活，投票分数就会高；相反，如果候选框没有正确地与目标重合，则`RoI`中的$k^2$个`bin`里，有一部分则不会被激活，投票分数就会低。
+<center><img src="/images/R-FCN/visualization.png" width="90%"/></center>
+
+## Backbone architecture
+本文中`R-FCN`是基于`ResNet-101`的，`100`个卷积层后跟随全局平均池化，然后加一个`1000`类的全连接层。
+
+改动：移除了`average pooling`层和全连接层，只是用卷积层去计算`feature map`。`ResNet-101`中最后的卷积块是`2048-d`的，为了降维附加了一个随机初始化的`1024-d`的`1×1`的卷积层。然后使用`k^2(C+1)`通道的卷积层生成`score map`。
+
+
+# Reference
+1. [论文原文](https://arxiv.org/pdf/1605.06409.pdf)
+2. [R-FCN：基于区域的全卷积网络来检测物体](http://blog.csdn.net/shadow_guo/article/details/51767036)
+
+<div id="container"></div>
+<link rel="stylesheet" href="https://imsun.github.io/gitment/style/default.css">
+<script src="https://imsun.github.io/gitment/dist/gitment.browser.js"></script>
+<script>
+var gitment = new Gitment({
+  id: '<%= page.date %>', // 可选。默认为 location.href  比如我本人的就删除了
+  owner: 'zhangting2020',              //比如我的叫anTtutu
+  repo: 'GitComment',                 //比如我的叫anTtutu.github.io
+  oauth: {
+    client_id: '60737b1014bda221b290',          //比如我的828***********
+    client_secret: 'ce34df0ac4253419bfaa84df9363844ed0e6f9b8',  //比如我的49e************************
+  },
+})
+gitment.render('container')
+</script>

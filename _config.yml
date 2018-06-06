@@ -3,12 +3,12 @@
 ## Source: https://github.com/hexojs/hexo/
 
 # Site
-title: Hexo
+title: Tina's Blog
 subtitle:
 description:
 keywords:
-author: John Doe
-language:
+author: Ting Zhang
+language: zh-Hans
 timezone:
 
 # URL
@@ -41,7 +41,7 @@ future: true
 highlight:
   enable: true
   line_number: true
-  auto_detect: false
+  auto_detect: true
   tab_replace:
   
 # Home page setting
@@ -78,4 +78,13 @@ theme: next
 # Deployment
 ## Docs: https://hexo.io/docs/deployment.html
 deploy:
-  type:
+  type: git
+  repo: git@github.com:zhangting2020/zhangting2020.github.io.git
+  branch: master
+
+# Gitment
+gitment:
+   id: 60737b1014bda221b290
+   secret: ce34df0ac4253419bfaa84df9363844ed0e6f9b8
+
+
